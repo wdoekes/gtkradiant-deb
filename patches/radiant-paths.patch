@@ -1,3 +1,9 @@
+Description: hardcode GtkRadiant paths
+ Remove crazy loki stuff (should replace with lookup in proc:
+ $(dirname $(readlink /proc/$$/exe)) ). And hardcode paths to
+ /usr/share/gtkradiant and /usr/lib/x86_64-linux-gnu.
+ This needs some fixing before we could give this back to TTimo.
+
 diff --git a/radiant/gtkmisc.cpp b/radiant/gtkmisc.cpp
 index 05d49c77..9e8d93b4 100644
 --- a/radiant/gtkmisc.cpp

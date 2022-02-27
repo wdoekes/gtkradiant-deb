@@ -1,4 +1,6 @@
-Description: stripping binaries can be done later (and added do dbgsym debs)
+Description: do not strip binary in make step
+ Binary stripping can be done later (so the debug symbols go into the
+ dbgsym packages).
 
 --- a/bspc/Makefile
 +++ b/bspc/Makefile

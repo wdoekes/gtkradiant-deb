@@ -7,7 +7,7 @@ oscodename=${1:-ubuntu/focal}  # ubuntu/focal
 upname=gtkradiant
 upversion=${2:-1.6.6}       # GtkRadiant version
 debepoch=
-debversion=${3:-0wjd0}      # deb build version, e.g. 0wjd1
+debversion=${3:-0wjd1}      # deb build version, e.g. 0wjd1
 
 
 echo "Usage: $0 [$oscodename [$upversion [$debversion]]]"

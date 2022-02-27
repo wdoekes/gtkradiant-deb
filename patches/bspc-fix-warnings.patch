@@ -1,0 +1,448 @@
+Description: enable -Werror=all and fix related problems
+
+diff --git a/Makefile b/Makefile
+index f5fe36f..3fa1e12 100644
+--- a/bspc/Makefile
++++ b/bspc/Makefile
+@@ -3,7 +3,7 @@ CFLAGS=\
+ 	-Dstricmp=strcasecmp -DCom_Memcpy=memcpy -DCom_Memset=memset \
+ 	-DMAC_STATIC= -DQDECL= -DLINUX -DBSPC -D_FORTIFY_SOURCE=2 \
+ 	-fno-common \
+-	-I. -Ideps -Wall
++	-I. -Ideps -Wall -Werror=all -Wno-error=format-truncation
+ 
+ RELEASE_CFLAGS=-O3 -ffast-math
+ DEBUG_CFLAGS=-g -O0 -ffast-math
+diff --git a/aas_facemerging.c b/aas_facemerging.c
+index b6ac76d..4a0c2f0 100644
+--- a/bspc/aas_facemerging.c
++++ b/bspc/aas_facemerging.c
+@@ -217,7 +217,7 @@ int AAS_CanMergePlaneFaces(tmp_area_t *tmparea, int planenum)
+ {
+ 	tmp_area_t *frontarea, *backarea;
+ 	tmp_face_t *face1;
+-	int side1, merge, faceflags;
++	int side1, merge, faceflags = 0;
+ 
+ 	frontarea = backarea = NULL;
+ 	merge = false;
+diff --git a/aas_gsubdiv.c b/aas_gsubdiv.c
+index d3cf222..35070f9 100644
+--- a/bspc/aas_gsubdiv.c
++++ b/bspc/aas_gsubdiv.c
+@@ -528,7 +528,7 @@ tmp_node_t *AAS_LadderSubdivideArea_r(tmp_node_t *tmpnode)
+ 	tmp_area_t *tmparea, *frontarea, *backarea;
+ 	tmp_face_t *face1;
+ 	tmp_node_t *tmpnode1, *tmpnode2;
+-	vec3_t lowestpoint, normal = {0, 0, 1};
++	vec3_t lowestpoint = {0, 0, 0}, normal = {0, 0, 1};
+ 	plane_t *plane;
+ 	winding_t *w;
+ 
+diff --git a/be_aas_bspc.c b/be_aas_bspc.c
+index 5743fe7..34f680d 100644
+--- a/bspc/be_aas_bspc.c
++++ b/bspc/be_aas_bspc.c
+@@ -213,15 +213,6 @@ void Com_DPrintf(char *fmt, ...)
+ } //end of the function Com_DPrintf
+ //===========================================================================
+ //
+-// Parameter:			-
+-// Returns:				-
+-// Changes Globals:		-
+-//===========================================================================
+-int COM_Compress( char *data_p ) {
+-	return strlen(data_p);
+-}
+-//===========================================================================
+-//
+ // Parameter:				-
+ // Returns:					-
+ // Changes Globals:		-
+diff --git a/bspc.c b/bspc.c
+index b1a0a12..36b92d2 100644
+--- a/bspc/bspc.c
++++ b/bspc/bspc.c
+@@ -200,12 +200,12 @@ void CreateAASFilesForAllBSPFiles(char *quakepath)
+ 			//
+ 			for (qf = bspfiles; qf; qf = qf->next)
+ 			{
+-				sprintf(aasfile, "%s/%s", qf->pakfile, qf->origname);
++				snprintf(aasfile, sizeof(aasfile), "%s/%s", qf->pakfile, qf->origname);
+ 				Log_Print("found %s\n", aasfile);
+ 				strcpy(&aasfile[strlen(aasfile)-strlen(".bsp")], ".aas");
+ 				for (qf2 = aasfiles; qf2; qf2 = qf2->next)
+ 				{
+-					sprintf(buf, "%s/%s", qf2->pakfile, qf2->origname);
++					snprintf(buf, sizeof(buf), "%s/%s", qf2->pakfile, qf2->origname);
+ 					if (!stricmp(aasfile, buf))
+ 					{
+ 						Log_Print("found %s\n", buf);
+diff --git a/deps/botlib/be_aas_reach.c b/deps/botlib/be_aas_reach.c
+index 5dfa020..7b30dc0 100644
+--- a/bspc/deps/botlib/be_aas_reach.c
++++ b/bspc/deps/botlib/be_aas_reach.c
+@@ -1065,8 +1065,12 @@ int AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge(int area1num, int area2
+ 	float length, ground_bestlength, water_bestlength, ground_bestdist, water_bestdist;
+ 	vec3_t v1, v2, v3, v4, tmpv, p1area1, p1area2, p2area1, p2area2;
+ 	vec3_t normal, ort, edgevec, start, end, dir;
+-	vec3_t ground_beststart, ground_bestend, ground_bestnormal;
+-	vec3_t water_beststart, water_bestend, water_bestnormal;
++	vec3_t ground_beststart = {0, 0, 0};
++	vec3_t ground_bestend = {0, 0, 0};
++	vec3_t ground_bestnormal = {0, 0, 0};
++	vec3_t water_beststart = {0, 0, 0};
++	vec3_t water_bestend = {0, 0, 0};
++	vec3_t water_bestnormal = {0, 0, 0};
+ 	vec3_t invgravity = {0, 0, 1};
+ 	vec3_t testpoint;
+ 	aas_plane_t *plane;
+@@ -2380,7 +2384,8 @@ int AAS_Reachability_Ladder(int area1num, int area2num)
+ 	float face1area, face2area, bestface1area, bestface2area;
+ 	float phys_jumpvel, maxjumpheight;
+ 	vec3_t area1point, area2point, v1, v2, up = {0, 0, 1};
+-	vec3_t mid, lowestpoint, start, end, sharededgevec, dir;
++	vec3_t mid, lowestpoint = {0, 0, 0};
++	vec3_t start, end, sharededgevec, dir;
+ 	aas_area_t *area1, *area2;
+ 	aas_face_t *face1, *face2, *ladderface1, *ladderface2;
+ 	aas_plane_t *plane1, *plane2;
+diff --git a/deps/botlib/l_precomp.c b/deps/botlib/l_precomp.c
+index 04c17db..756a4f4 100644
+--- a/bspc/deps/botlib/l_precomp.c
++++ b/bspc/deps/botlib/l_precomp.c
+@@ -708,7 +708,7 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
+ 										token_t **firsttoken, token_t **lasttoken)
+ {
+ 	token_t *token;
+-	unsigned long t;	//	time_t t; //to prevent LCC warning
++	time_t t;
+ 	char *curtime;
+ 
+ 	token = PC_CopyToken(deftoken);
+@@ -1699,7 +1699,6 @@ int PC_EvaluateTokens(source_t *source, token_t *tokens, signed long int *intval
+ 	int questmarkintvalue = 0;
+ 	double questmarkfloatvalue = 0;
+ 	int gotquestmarkvalue = qfalse;
+-	int lastoperatortype = 0;
+ 	//
+ 	operator_t operator_heap[MAX_OPERATORS];
+ 	int numoperators = 0;
+@@ -2088,7 +2087,6 @@ int PC_EvaluateTokens(source_t *source, token_t *tokens, signed long int *intval
+ 		else Log_Write("result value = %f", v1->floatvalue);
+ #endif //DEBUG_EVAL
+ 		if (error) break;
+-		lastoperatortype = o->operator;
+ 		//if not an operator with arity 1
+ 		if (o->operator != P_LOGIC_NOT
+ 				&& o->operator != P_BIN_NOT)
+@@ -2958,7 +2956,8 @@ void PC_UnreadToken(source_t *source, token_t *token)
+ //============================================================================
+ void PC_SetIncludePath(source_t *source, char *path)
+ {
+-	strncpy(source->includepath, path, MAX_PATH);
++	path[sizeof(source->includepath) - 1] = '\0';
++	strncpy(source->includepath, path, sizeof(source->includepath) - 2);
+ 	//add trailing path seperator
+ 	if (source->includepath[strlen(source->includepath)-1] != '\\' &&
+ 		source->includepath[strlen(source->includepath)-1] != '/')
+@@ -2997,7 +2996,7 @@ source_t *LoadSourceFile(const char *filename)
+ 	source = (source_t *) GetMemory(sizeof(source_t));
+ 	Com_Memset(source, 0, sizeof(source_t));
+ 
+-	strncpy(source->filename, filename, MAX_PATH);
++	strncpy(source->filename, filename, sizeof(source->filename) - 1);
+ 	source->scriptstack = script;
+ 	source->tokens = NULL;
+ 	source->defines = NULL;
+@@ -3030,7 +3029,7 @@ source_t *LoadSourceMemory(char *ptr, int length, char *name)
+ 	source = (source_t *) GetMemory(sizeof(source_t));
+ 	Com_Memset(source, 0, sizeof(source_t));
+ 
+-	strncpy(source->filename, name, MAX_PATH);
++	strncpy(source->filename, name, sizeof(source->filename) - 1);
+ 	source->scriptstack = script;
+ 	source->tokens = NULL;
+ 	source->defines = NULL;
+diff --git a/deps/botlib/l_script.c b/deps/botlib/l_script.c
+index d4da773..30ef725 100644
+--- a/bspc/deps/botlib/l_script.c
++++ b/bspc/deps/botlib/l_script.c
+@@ -1371,7 +1371,7 @@ script_t *LoadScriptFile(const char *filename)
+ 	fclose(fp);
+ #endif
+ 	//
+-	script->length = COM_Compress(script->buffer);
++	script->length = strlen(script->buffer);
+ 
+ 	return script;
+ } //end of the function LoadScriptFile
+diff --git a/deps/qcommon/cm_patch.c b/deps/qcommon/cm_patch.c
+index 75ad7f8..79b37ee 100644
+--- a/bspc/deps/qcommon/cm_patch.c
++++ b/bspc/deps/qcommon/cm_patch.c
+@@ -1379,7 +1379,7 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
+ 	float offset, enterFrac, leaveFrac, t;
+ 	patchPlane_t *planes;
+ 	facet_t	*facet;
+-	float plane[4], bestplane[4];
++	float plane[4], bestplane[4] = {};
+ 	vec3_t startp, endp;
+ #ifndef BSPC
+ 	static cvar_t *cv;
+diff --git a/deps/qcommon/cm_trace.c b/deps/qcommon/cm_trace.c
+index 9e8abec..dc595b0 100644
+--- a/bspc/deps/qcommon/cm_trace.c
++++ b/bspc/deps/qcommon/cm_trace.c
+@@ -132,16 +132,28 @@ SquareRootFloat
+ */
+ float SquareRootFloat(float number) {
+ 	long i;
+-	float x, y;
++	float x, y; /* NOTE: "warning: '__builtin_memcpy' forming offset" is bogus */
+ 	const float f = 1.5F;
+ 
+ 	x = number * 0.5F;
+ 	y  = number;
++#if 1 /* strict-aliasing */
++	/* BOGUS: warning: '__builtin_memcpy' forming offset [5, 8] is out
++	 * of the bounds [0, 4] of object
++	 * Probably: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=89689 */
++	memcpy(&i, &y, sizeof(long));  /* i  = * ( long * ) &y; */
++	i  = 0x5f3759df - ( i >> 1 );  /* https://en.wikipedia.org/wiki/Fast_inverse_square_root */
++	memcpy(&y, &i, sizeof(float)); /* y = * ( float * ) &i; */
++#else /* original */
++	/* ACCURATE: warning: dereferencing type-punned pointer will break
++	 * strict-aliasing rules [-Wstrict-aliasing] */
+ 	i  = * ( long * ) &y;
+ 	i  = 0x5f3759df - ( i >> 1 );
+ 	y  = * ( float * ) &i;
++#endif
+ 	y  = y * ( f - ( x * y * y ) );
+ 	y  = y * ( f - ( x * y * y ) );
++
+ 	return number * y;
+ }
+ 
+diff --git a/deps/qcommon/unzip.c b/deps/qcommon/unzip.c
+index e298a84..97fac46 100644
+--- a/bspc/deps/qcommon/unzip.c
++++ b/bspc/deps/qcommon/unzip.c
+@@ -1412,8 +1412,8 @@ extern int unzClose (unzFile file)
+ 		return UNZ_PARAMERROR;
+ 	s=(unz_s*)file;
+ 
+-    if (s->pfile_in_zip_read!=NULL)
+-        unzCloseCurrentFile(file);
++	if (s->pfile_in_zip_read!=NULL)
++		unzCloseCurrentFile(file);
+ 
+ 	fclose(s->file);
+ 	TRYFREE(s);
+@@ -1737,8 +1737,8 @@ extern int unzLocateFile (unzFile file, const char *szFileName, int iCaseSensiti
+ 	if (file==NULL)
+ 		return UNZ_PARAMERROR;
+ 
+-    if (strlen(szFileName)>=UNZ_MAXFILENAMEINZIP)
+-        return UNZ_PARAMERROR;
++	if (strlen(szFileName)>=UNZ_MAXFILENAMEINZIP)
++		return UNZ_PARAMERROR;
+ 
+ 	s=(unz_s*)file;
+ 	if (!s->current_file_ok)
+@@ -1812,9 +1812,9 @@ static int unzlocal_CheckCurrentFileCoherencyHeader (unz_s* s, uInt* piSizeVar,
+ 	else if ((err==UNZ_OK) && (uData!=s->cur_file_info.compression_method))
+ 		err=UNZ_BADZIPFILE;
+ 
+-    if ((err==UNZ_OK) && (s->cur_file_info.compression_method!=0) &&
++	if ((err==UNZ_OK) && (s->cur_file_info.compression_method!=0) &&
+                          (s->cur_file_info.compression_method!=Z_DEFLATED))
+-        err=UNZ_BADZIPFILE;
++		err=UNZ_BADZIPFILE;
+ 
+ 	if (unzlocal_getLong(s->file,&uData) != UNZ_OK) /* date/time */
+ 		err=UNZ_ERRNO;
+@@ -1876,8 +1876,8 @@ extern int unzOpenCurrentFile (unzFile file)
+ 	if (!s->current_file_ok)
+ 		return UNZ_PARAMERROR;
+ 
+-    if (s->pfile_in_zip_read != NULL)
+-        unzCloseCurrentFile(file);
++	if (s->pfile_in_zip_read != NULL)
++		unzCloseCurrentFile(file);
+ 
+ 	if (unzlocal_CheckCurrentFileCoherencyHeader(s,&iSizeVar,
+ 				&offset_local_extrafield,&size_local_extrafield)!=UNZ_OK)
+@@ -2918,9 +2918,11 @@ int inflate_flush(inflate_blocks_statef *s, z_streamp z, int r)
+  * Copyright (C) 1995-1998 Mark Adler
+  * For conditions of distribution and use, see copyright notice in zlib.h 
+  */
+-
++#if 0
+ static const char inflate_copyright[] =
+    " inflate 1.1.3 Copyright 1995-1998 Mark Adler ";
++#endif
++
+ /*
+   If you use the zlib library in a product, an acknowledgment is welcome
+   in the documentation of your product. If for some reason you cannot
+diff --git a/l_bsp_hl.c b/l_bsp_hl.c
+index 7677ab6..fceec8c 100644
+--- a/bspc/l_bsp_hl.c
++++ b/bspc/l_bsp_hl.c
+@@ -692,17 +692,17 @@ void HL_PrintBSPFileSizes(void)
+ 	qprintf("Object names  Objects/Maxobjs  Memory / Maxmem  Fullness\n" );
+ 	qprintf("------------  ---------------  ---------------  --------\n" );
+ 
+-	totalmemory += ArrayUsage( "models",		hl_nummodels,		ENTRIES(hl_dmodels),		ENTRYSIZE(hl_dmodels) );
+-	totalmemory += ArrayUsage( "planes",		hl_numplanes,		ENTRIES(hl_dplanes),		ENTRYSIZE(hl_dplanes) );
+-	totalmemory += ArrayUsage( "vertexes",		hl_numvertexes,	ENTRIES(hl_dvertexes),	ENTRYSIZE(hl_dvertexes) );
+-	totalmemory += ArrayUsage( "nodes",			hl_numnodes,		ENTRIES(hl_dnodes),		ENTRYSIZE(hl_dnodes) );
+-	totalmemory += ArrayUsage( "texinfos",		hl_numtexinfo,		ENTRIES(hl_texinfo),		ENTRYSIZE(hl_texinfo) );
+-	totalmemory += ArrayUsage( "faces",			hl_numfaces,		ENTRIES(hl_dfaces),		ENTRYSIZE(hl_dfaces) );
+-	totalmemory += ArrayUsage( "clipnodes",	hl_numclipnodes,	ENTRIES(hl_dclipnodes),	ENTRYSIZE(hl_dclipnodes) );
+-	totalmemory += ArrayUsage( "leaves",		hl_numleafs,		ENTRIES(hl_dleafs),		ENTRYSIZE(hl_dleafs) );
+-	totalmemory += ArrayUsage( "marksurfaces",hl_nummarksurfaces,ENTRIES(hl_dmarksurfaces),ENTRYSIZE(hl_dmarksurfaces) );
+-	totalmemory += ArrayUsage( "surfedges",	hl_numsurfedges,	ENTRIES(hl_dsurfedges),	ENTRYSIZE(hl_dsurfedges) );
+-	totalmemory += ArrayUsage( "edges",			hl_numedges,		ENTRIES(hl_dedges),		ENTRYSIZE(hl_dedges) );
++	totalmemory += ArrayUsage( "models",		hl_nummodels,		HL_MAX_MAP_MODELS,		ENTRYSIZE(hl_dmodels) );
++	totalmemory += ArrayUsage( "planes",		hl_numplanes,		HL_MAX_MAP_PLANES,		ENTRYSIZE(hl_dplanes) );
++	totalmemory += ArrayUsage( "vertexes",		hl_numvertexes,	HL_MAX_MAP_VERTS,			ENTRYSIZE(hl_dvertexes) );
++	totalmemory += ArrayUsage( "nodes",			hl_numnodes,		HL_MAX_MAP_NODES,			ENTRYSIZE(hl_dnodes) );
++	totalmemory += ArrayUsage( "texinfos",		hl_numtexinfo,		HL_MAX_MAP_TEXINFO,		ENTRYSIZE(hl_texinfo) );
++	totalmemory += ArrayUsage( "faces",			hl_numfaces,		HL_MAX_MAP_FACES,			ENTRYSIZE(hl_dfaces) );
++	totalmemory += ArrayUsage( "clipnodes",	hl_numclipnodes,	HL_MAX_MAP_CLIPNODES,	ENTRYSIZE(hl_dclipnodes) );
++	totalmemory += ArrayUsage( "leaves",		hl_numleafs,		HL_MAX_MAP_LEAFS,			ENTRYSIZE(hl_dleafs) );
++	totalmemory += ArrayUsage( "marksurfaces",hl_nummarksurfaces,HL_MAX_MAP_MARKSURFACES,ENTRYSIZE(hl_dmarksurfaces) );
++	totalmemory += ArrayUsage( "surfedges",	hl_numsurfedges,	HL_MAX_MAP_SURFEDGES,	ENTRYSIZE(hl_dsurfedges) );
++	totalmemory += ArrayUsage( "edges",			hl_numedges,		HL_MAX_MAP_EDGES,			ENTRYSIZE(hl_dedges) );
+ 
+ 	totalmemory += GlobUsage( "texdata",		hl_texdatasize,	sizeof(hl_dtexdata) );
+ 	totalmemory += GlobUsage( "lightdata",		hl_lightdatasize,	sizeof(hl_dlightdata) );
+diff --git a/l_bsp_q2.c b/l_bsp_q2.c
+index 445ff30..5e1dbe9 100644
+--- a/bspc/l_bsp_q2.c
++++ b/bspc/l_bsp_q2.c
+@@ -1100,7 +1100,7 @@ void Q2_UnparseEntities (void)
+ {
+ 	char	*buf, *end;
+ 	epair_t	*ep;
+-	char	line[2048];
++	char	line[2060];
+ 	int		i;
+ 	char	key[1024], value[1024];
+ 
+diff --git a/l_bsp_sin.c b/l_bsp_sin.c
+index 154551f..c56d361 100644
+--- a/bspc/l_bsp_sin.c
++++ b/bspc/l_bsp_sin.c
+@@ -1087,7 +1087,7 @@ void Sin_UnparseEntities (void)
+ {
+ 	char	*buf, *end;
+ 	epair_t	*ep;
+-	char	line[2048];
++	char	line[2060];
+ 	int		i;
+ 	char	key[1024], value[1024];
+ 
+diff --git a/l_cmd.c b/l_cmd.c
+index 3a8ab63..3699198 100644
+--- a/bspc/l_cmd.c
++++ b/bspc/l_cmd.c
+@@ -332,7 +332,7 @@ char *ExpandPath (char *path)
+ char *ExpandPathAndArchive (char *path)
+ {
+ 	char	*expanded;
+-	char	archivename[1024];
++	char	archivename[1025];
+ 
+ 	expanded = ExpandPath (path);
+ 
+diff --git a/l_log.c b/l_log.c
+index 6a69c2b..e3c920e 100644
+--- a/bspc/l_log.c
++++ b/bspc/l_log.c
+@@ -61,7 +61,8 @@ void Log_Open(char *filename)
+ 		printf("can't open the log file %s\n", filename);
+ 		return;
+ 	} //end if
+-	strncpy(logfile.filename, filename, MAX_LOGFILENAMESIZE);
++	logfile.filename[0] = logfile.filename[MAX_LOGFILENAMESIZE - 1] = '\0';
++	strncat(logfile.filename, filename, MAX_LOGFILENAMESIZE - 1);
+ 	printf("Opened log %s\n", logfile.filename);
+ } //end of the function Log_Create
+ //===========================================================================
+diff --git a/l_mem.c b/l_mem.c
+index 2636b68..06ad594 100644
+--- a/bspc/l_mem.c
++++ b/bspc/l_mem.c
+@@ -410,7 +410,7 @@ void *Hunk_Alloc(int size)
+ {
+ 	memhunk_t *h;
+ 
+-	if (!size) return (void *) memhunk_high_size;
++	if (!size) return (void *)(ssize_t)memhunk_high_size;
+ 	//
+ 	h = GetClearedMemory(size + sizeof(memhunk_t));
+ 	h->ptr = (char *) h + sizeof(memhunk_t);
+diff --git a/leakfile.c b/leakfile.c
+index 924b34d..0673cdd 100644
+--- a/bspc/leakfile.c
++++ b/bspc/leakfile.c
+@@ -57,7 +57,7 @@ void LeakFile (tree_t *tree)
+ 	//
+ 	// write the points to the file
+ 	//
+-	sprintf (filename, "%s.lin", source);
++	snprintf (filename, sizeof(filename), "%s.lin", source);
+ 	qprintf ("%s\n", filename);
+ 	linefile = fopen (filename, "w");
+ 	if (!linefile)
+@@ -68,8 +68,8 @@ void LeakFile (tree_t *tree)
+ 	while (node->occupied > 1)
+ 	{
+ 		int			next;
+-		portal_t	*p, *nextportal;
+-		node_t		*nextnode;
++		portal_t	*p, *nextportal = NULL;
++		node_t		*nextnode = NULL;
+ 		int			s;
+ 
+ 		// find the best portal exit
+diff --git a/portals.c b/portals.c
+index cde4f60..4039dd7 100644
+--- a/bspc/portals.c
++++ b/bspc/portals.c
+@@ -431,6 +431,7 @@ void MakeNodePortal (node_t *node)
+ 		else
+ 		{
+ 			Error ("MakeNodePortal: mislinked portal");
++			return; /* never reached */
+ 		} //end else
+ 		ChopWindingInPlace (&w, normal, dist, 0.1);
+ 	} //end for
+@@ -494,7 +495,10 @@ void SplitNodePortals (node_t *node)
+ 	{
+ 		if (p->nodes[0] == node) side = 0;
+ 		else if (p->nodes[1] == node) side = 1;
+-		else Error ("SplitNodePortals: mislinked portal");
++		else {
++		    Error ("SplitNodePortals: mislinked portal");
++		    return; /* never reached */
++		}
+ 		next_portal = p->next[side];
+ 
+ 		other_node = p->nodes[!side];
+diff --git a/textures.c b/textures.c
+index 76cc0fd..ca7e784 100644
+--- a/bspc/textures.c
++++ b/bspc/textures.c
+@@ -50,7 +50,7 @@ int FindMiptex (char *name)
+ 	strcpy (textureref[i].name, name);
+ 
+ 	// load the miptex to get the flags and values
+-	sprintf (path, "%stextures/%s.wal", gamedir, name);
++	snprintf (path, sizeof(path), "%stextures/%s.wal", gamedir, name);
+ 	if (TryLoadFile (path, (void **)&mt) != -1)
+ 	{
+ 		textureref[i].value = LittleLong (mt->value);
