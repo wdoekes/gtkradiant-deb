@@ -1,0 +1,30 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+# Uncomment this to change the hardening options
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+SCONS = scons
+
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+	NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+	MAKEFLAGS += -j$(NUMJOBS)
+	SCONSFLAGS += -j$(NUMJOBS)
+endif
+
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+%:
+	dh $@ --parallel
+
+override_dh_auto_build:
+	SCONSFLAGS=$(SCONSFLAGS) $(SCONS)
+	$(MAKE) -C bspc
+
+override_dh_auto_install:
+	# Install into ./install/
+	SCONSFLAGS=$(SCONSFLAGS) $(SCONS) install 
+	# bspc is "installed" in ./bspc/

@@ -1,0 +1,116 @@
+#!/bin/sh
+cd "$(dirname "$0")"  # jump to curdir
+set -eu
+
+# Pass these on the command line.
+oscodename=${1:-ubuntu/focal}  # ubuntu/focal
+upname=gtkradiant
+upversion=${2:-1.6.6}       # GtkRadiant version
+debepoch=
+debversion=${3:-0wjd0}      # deb build version, e.g. 0wjd1
+
+
+echo "Usage: $0 [$oscodename [$upversion [$debversion]]]"
+echo ".. continuing"
+
+osdistro=${oscodename%/*}   # debian (or ubuntu)
+oscodename=${oscodename#*/} # stretch (or bionic)
+case $osdistro/$oscodename in
+debian/buster)  osdistshort=deb; oscodenum=10;;
+debian/stretch) osdistshort=deb; oscodenum=9;;
+debian/jessie)  osdistshort=deb; oscodenum=8;;
+debian/wheezy)  osdistshort=deb; oscodenum=7;;
+ubuntu/focal)   osdistshort=ubu; oscodenum=20.04;;
+ubuntu/bionic)  osdistshort=ubu; oscodenum=18.04;;
+ubuntu/xenial)  osdistshort=ubu; oscodenum=16.04;;
+ubuntu/trusty)  osdistshort=ubu; oscodenum=14.04;;
+*) echo "ERROR: undefined OS: $osdistro/$oscodename" >&2 && exit 1
+esac
+_shortver=$osdistshort$oscodenum
+
+# Update changelog
+sed -i -e "1s/+\\(deb\\|ubu\\)[0-9.]*) [a-z]\\+;/+$_shortver) $oscodename;/" \
+    changelog
+
+# Docker disallows certain tokens in versions.
+dockversion=$(echo build-${upname}-${upversion}-${debversion}-${oscodename} |
+    sed -e 's/[^0-9A-Za-z_.-]/_/g')
+
+
+git_pull_or_clone() {
+    if test -d "$1"; then
+	#git -C "$1" pull --rebase
+	true  # XXX
+    else
+	git clone "$2" "$1"
+    fi
+}
+
+svn_pull_or_clone() {
+    if test -d "$1"; then
+	#svn update "$1"
+	true  # XXX
+    else
+	svn checkout "$2" "$1"
+    fi
+}
+
+# Ensure we have GtkRadiant.
+# You'll need to clone this:
+git_pull_or_clone GtkRadiant https://github.com/TTimo/GtkRadiant
+
+# Add bspc to repo.
+git_pull_or_clone GtkRadiant/bspc https://github.com/TTimo/bspc.git
+# FIXME: fix ... bspc md5 calculation !!
+
+# Ensure we have all game pak files.
+for svnpak in \
+	ETPack \
+	JAPack \
+	Q1Pack \
+	Q2Pack \
+	Q3Pack \
+	QLPack \
+	QuetooPack \
+	STVEFPack \
+	UnvanquishedPack \
+	UrTPack \
+	WolfPack \
+	; do
+    case $svnpak in
+    UnvanquishedPack)
+	svnurl=https://github.com/Unvanquished/unvanquished-mapeditor-support.git/trunk/build/gtkradiant
+	;;
+    *)
+	svnurl=svn://svn.icculus.org/gtkradiant-gamepacks/$svnpak/trunk
+	;;
+    esac
+    svn_pull_or_clone GtkRadiant/install/installs/$svnpak $svnurl
+done
+
+
+# Will build files.
+if ! docker build \
+    --pull \
+    --ulimit nofile=512 \
+    --build-arg osdistro=$osdistro \
+    --build-arg osdistshort=$osdistshort \
+    --build-arg oscodename=$oscodename \
+    --build-arg upname=$upname \
+    --build-arg upversion=$upversion \
+    --build-arg debepoch=$debepoch \
+    --build-arg debversion=$debversion \
+    -t $dockversion \
+    -f Dockerfile \
+    .
+then
+    ret=$?
+    echo "fail" >&2
+    exit $ret
+fi
+
+# Copy files to ./Dockerfile.out
+test -d Dockerfile.out/$oscodename || mkdir -p Dockerfile.out/$oscodename
+docker run $dockversion sh -c 'cd /dist; tar -zc *' |
+    tar -zxvC Dockerfile.out/$oscodename/ |
+    sed -e 's#$# -> Dockerfile.out/'$oscodename'/#'

@@ -1,0 +1,9 @@
+/Dockerfile.build
+/Dockerfile.buildmany
+/Dockerfile.out
+/Dockerfile
+/README.rst
+
+/.dockerignore
+/.git
+/.gitignore

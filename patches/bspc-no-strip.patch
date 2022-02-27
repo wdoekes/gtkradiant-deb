@@ -1,0 +1,12 @@
+Description: stripping binaries can be done later (and added do dbgsym debs)
+
+--- a/bspc/Makefile
++++ b/bspc/Makefile
+@@ -91,7 +91,6 @@ release: $(EXEC)
+ 
+ $(EXEC): $(GAME_OBJS)
+ 	$(CC) -o $@ $(GAME_OBJS) $(LDFLAGS)
+-	strip $@
+ 
+ $(EXEC)_g: $(GAME_OBJS)
+ 	$(CC) -o $@ $(GAME_OBJS) $(LDFLAGS)

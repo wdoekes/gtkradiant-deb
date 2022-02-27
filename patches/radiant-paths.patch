@@ -1,0 +1,461 @@
+diff --git a/radiant/gtkmisc.cpp b/radiant/gtkmisc.cpp
+index 05d49c77..9e8d93b4 100644
+--- a/radiant/gtkmisc.cpp
++++ b/radiant/gtkmisc.cpp
+@@ -621,7 +621,7 @@ bool WINAPI load_plugin_bitmap( const char* filename, void **gdkpixmap, void **m
+ 
+ 	if ( *gdkpixmap == NULL ) {
+ 		// look in the core plugins
+-		str = g_strAppPath;
++		str = g_strDataPath;
+ 		str += g_strPluginsDir;
+ 		str += "bitmaps/";
+ 		str += filename;
+@@ -630,7 +630,7 @@ bool WINAPI load_plugin_bitmap( const char* filename, void **gdkpixmap, void **m
+ 		if ( *gdkpixmap == NULL ) {
+ 
+ 			// look in core modules
+-			str = g_strAppPath;
++			str = g_strDataPath;
+ 			str += g_strModulesDir;
+ 			str += "bitmaps/";
+ 			str += filename;
+@@ -679,7 +679,7 @@ GtkWidget* new_plugin_image_icon( const char* filename ) {
+ 	GtkWidget *icon;
+ 	GError *gerror = NULL;
+ 
+-	str = g_strAppPath;
++	str = g_strDataPath;
+ 	str += g_strModulesDir;
+ 	str += "bitmaps/";
+ 	str += filename;
+diff --git a/radiant/main.cpp b/radiant/main.cpp
+index 33e1e4c5..bb28b764 100644
+--- a/radiant/main.cpp
++++ b/radiant/main.cpp
+@@ -115,187 +115,6 @@ static void create_splash() {
+ }
+ #endif
+ 
+-// =============================================================================
+-// Loki stuff
+-
+-#if defined( __linux__ ) || defined( __FreeBSD__ ) || defined( __APPLE__ )
+-
+-/* A short game name, could be used as argv[0] */
+-static char game_name[100] = "";
+-
+-/* The directory where the data files can be found (run directory) */
+-static char datapath[PATH_MAX];
+-
+-char *loki_gethomedir( void ){
+-	char *home = NULL;
+-
+-	home = getenv( "HOME" );
+-	if ( home == NULL ) {
+-		uid_t id = getuid();
+-		struct passwd *pwd;
+-
+-		setpwent();
+-		while ( ( pwd = getpwent() ) != NULL )
+-		{
+-			if ( pwd->pw_uid == id ) {
+-				home = pwd->pw_dir;
+-				break;
+-			}
+-		}
+-		endpwent();
+-	}
+-	return home;
+-}
+-
+-/* Must be called BEFORE loki_initialize */
+-void loki_setgamename( const char *n ){
+-	strncpy( game_name, n, sizeof( game_name ) );
+-}
+-
+-  #ifdef __linux__
+-/* Code to determine the mount point of a CD-ROM */
+-int loki_getmountpoint( const char *device, char *mntpt, int max_size ){
+-	char devpath[PATH_MAX], mntdevpath[PATH_MAX];
+-	FILE * mountfp;
+-	struct mntent *mntent;
+-	int mounted;
+-
+-	/* Nothing to do with no device file */
+-	if ( device == NULL ) {
+-		*mntpt = '\0';
+-		return -1;
+-	}
+-
+-	/* Get the fully qualified path of the CD-ROM device */
+-	if ( realpath( device, devpath ) == NULL ) {
+-		perror( "realpath() on your CD-ROM failed" );
+-		return( -1 );
+-	}
+-
+-	/* Get the mount point */
+-	mounted = -1;
+-	memset( mntpt, 0, max_size );
+-	mountfp = setmntent( _PATH_MNTTAB, "r" );
+-	if ( mountfp != NULL ) {
+-		mounted = 0;
+-		while ( ( mntent = getmntent( mountfp ) ) != NULL )
+-		{
+-			char *tmp, mntdev[1024];
+-
+-			strcpy( mntdev, mntent->mnt_fsname );
+-			if ( strcmp( mntent->mnt_type, "supermount" ) == 0 ) {
+-				tmp = strstr( mntent->mnt_opts, "dev=" );
+-				if ( tmp ) {
+-					strcpy( mntdev, tmp + strlen( "dev=" ) );
+-					tmp = strchr( mntdev, ',' );
+-					if ( tmp ) {
+-						*tmp = '\0';
+-					}
+-				}
+-			}
+-			if ( strncmp( mntdev, "/dev", 4 ) ||
+-				 realpath( mntdev, mntdevpath ) == NULL ) {
+-				continue;
+-			}
+-			if ( strcmp( mntdevpath, devpath ) == 0 ) {
+-				mounted = 1;
+-				assert( (int)strlen( mntent->mnt_dir ) < max_size );
+-				strncpy( mntpt, mntent->mnt_dir, max_size - 1 );
+-				mntpt[max_size - 1] = '\0';
+-				break;
+-			}
+-		}
+-		endmntent( mountfp );
+-	}
+-	return( mounted );
+-}
+-  #endif
+-
+-/*
+-    This function gets the directory containing the running program.
+-    argv0 - the 0'th argument to the program
+- */
+-// FIXME TTimo
+-// I don't understand this function. It looks like something cut from another piece of software
+-// we somehow get the g_strAppPath from it, but it's done through a weird scan across $PATH env. var.
+-// even worse, it doesn't behave the same in all cases .. works well when ran through gdb and borks when ran from a shell
+-void loki_initpaths( char *argv0 ){
+-	char temppath[PATH_MAX]; //, env[100];
+-	char *home; //, *ptr, *data_env;
+-
+-	home = loki_gethomedir();
+-	if ( home == NULL ) {
+-		home = const_cast<char*>(".");
+-	}
+-
+-	if ( *game_name == 0 ) { /* Game name defaults to argv[0] */
+-		loki_setgamename( argv0 );
+-	}
+-
+-	strcpy( temppath, argv0 ); /* If this overflows, it's your own fault :) */
+-	if ( !strrchr( temppath, '/' ) ) {
+-		char *path;
+-		char *last;
+-		int found;
+-
+-		found = 0;
+-		path = getenv( "PATH" );
+-		do
+-		{
+-			/* Initialize our filename variable */
+-			temppath[0] = '\0';
+-
+-			/* Get next entry from path variable */
+-			last = strchr( path, ':' );
+-			if ( !last ) {
+-				last = path + strlen( path );
+-			}
+-
+-			/* Perform tilde expansion */
+-			if ( *path == '~' ) {
+-				strcpy( temppath, home );
+-				++path;
+-			}
+-
+-			/* Fill in the rest of the filename */
+-			if ( last > ( path + 1 ) ) {
+-				strncat( temppath, path, ( last - path ) );
+-				strcat( temppath, "/" );
+-			}
+-			strcat( temppath, "./" );
+-			strcat( temppath, argv0 );
+-
+-			/* See if it exists, and update path */
+-			if ( access( temppath, X_OK ) == 0 ) {
+-				++found;
+-			}
+-			path = last + 1;
+-
+-		} while ( *last && !found );
+-
+-	}
+-	else
+-	{
+-		/* Increment argv0 to the basename */
+-		argv0 = strrchr( argv0, '/' ) + 1;
+-	}
+-
+-	/* Now canonicalize it to a full pathname for the data path */
+-	if ( realpath( temppath, datapath ) ) {
+-		/* There should always be '/' in the path */
+-		*( strrchr( datapath, '/' ) ) = '\0';
+-	}
+-}
+-
+-char *loki_getdatapath( void ){
+-	return( datapath );
+-}
+-
+-#endif
+-
+-// end of Loki stuff
+-// =============================================================================
+-
+ void error_redirect( const gchar *domain, GLogLevelFlags log_level, const gchar *message, gpointer user_data ){
+ 	gboolean in_recursion;
+ 	gboolean is_fatal;
+@@ -578,6 +397,8 @@ int mainRadiant( int argc, char* argv[] ) {
+ 		g_strTempPath = g_strAppPath;
+ 	}
+ 
++	g_strDataPath = g_strAppPath;
++	g_strLibPath = g_strAppPath;
+ #endif
+ 
+ #if defined( __linux__ ) || defined( __FreeBSD__ ) || defined( __APPLE__ )
+@@ -591,32 +412,32 @@ int mainRadiant( int argc, char* argv[] ) {
+ 	g_strTempPath = home.GetBuffer();
+ 	AddSlash( g_strTempPath );
+ 
+-	loki_initpaths( argv[0] );
+-
+-	// NOTE: we build g_strAppPath with a '/' (or '\' on WIN32)
++	// Set "datapath", although there is no sane data path.
++	// Let it be the same as /usr/share/gtkradiant. It must then not
++	// contain binaries nor user configuration files.
+ 	// it's a general convention in Radiant to have the slash at the end of directories
+-	char real[PATH_MAX];
+-	realpath( loki_getdatapath(), real );
+-	if ( real[strlen( real ) - 1] != '/' ) {
+-		strcat( real, "/" );
+-	}
+-
+-	g_strAppPath = real;
++	g_strAppPath = "/usr/bin/";  /* XXX: make more dynamic? */
++	g_strDataPath = "/usr/share/gtkradiant/";
++	g_strLibPath = "/usr/lib/x86_64-linux-gnu/gtkradiant/";
++	//g_strAppPath += g_get_home_dir();
++	//g_strAppPath += "/Documents/radiant/";
++	//mkdir(datapath, 0700); /* ignore return value */
++	//access(datapath, X_OK) == 0
+ 
+ 	// radiant is installed in the parent dir of "tools/"
+ 	// NOTE: this is not very easy for debugging
+ 	// maybe add options to lookup in several places?
+ 	// (for now I had to create symlinks)
+-	g_strBitmapsPath = g_strAppPath;
++	g_strBitmapsPath = g_strDataPath;
+ 	g_strBitmapsPath += "bitmaps/";
+ 
+-	// we will set this right after the game selection is done
+-	g_strGameToolsPath = g_strAppPath;
++	// initialize to datapath, but it will change once the game selection is done
++	g_strGameToolsPath = g_strDataPath;
+ 
+ #endif
+ 
+ 	// init the DTD path
+-	g_strDTDPath = g_strAppPath;
++	g_strDTDPath = g_strDataPath;
+ 	g_strDTDPath += "dtds/";
+ 
+ 	/*!
+@@ -686,7 +507,7 @@ int mainRadiant( int argc, char* argv[] ) {
+ 	// locate and open RADIANT_MAJOR and RADIANT_MINOR
+ 	qboolean bVerIsGood = true;
+ 	Str ver_file_name;
+-	ver_file_name = g_strAppPath;
++	ver_file_name = g_strDataPath;
+ 	ver_file_name += "RADIANT_MAJOR";
+ 	FILE *ver_file = fopen( ver_file_name.GetBuffer(), "r" );
+ 	if ( ver_file ) {
+@@ -708,7 +529,7 @@ int mainRadiant( int argc, char* argv[] ) {
+ 		Sys_FPrintf( SYS_ERR, "ERROR: can't find RADIANT_MAJOR in '%s'\n", ver_file_name.GetBuffer() );
+ 		bVerIsGood = false;
+ 	}
+-	ver_file_name = g_strAppPath;
++	ver_file_name = g_strDataPath;
+ 	ver_file_name += "RADIANT_MINOR";
+ 	ver_file = fopen( ver_file_name.GetBuffer(), "r" );
+ 	if ( ver_file ) {
+@@ -734,7 +555,7 @@ int mainRadiant( int argc, char* argv[] ) {
+ 		CString msg;
+ 		msg = "This editor binary (" RADIANT_VERSION ") doesn't match what the latest setup has configured in this directory\n";
+ 		msg += "Make sure you run the right/latest editor binary you installed\n";
+-		msg += g_strAppPath; msg += "\n";
++		msg += g_strDataPath; msg += "\n";
+ 		msg += "Check http://www.qeradiant.com/faq/index.cgi?file=219 for more information";
+ 		gtk_MessageBox( NULL, msg.GetBuffer(), _( "Radiant" ), MB_OK, "http://www.qeradiant.com/faq/index.cgi?file=219" );
+ 		_exit( -1 );
+diff --git a/radiant/mainframe.cpp b/radiant/mainframe.cpp
+index 7e8e2f48..355d6ed6 100644
+--- a/radiant/mainframe.cpp
++++ b/radiant/mainframe.cpp
+@@ -46,6 +46,8 @@
+ 
+ // globals
+ CString g_strAppPath;                   ///< holds the full path of the executable
++CString g_strDataPath;                  ///< WJD: path to data files
++CString g_strLibPath;                   ///< WJD: path to library/executables
+ CString g_strDTDPath;                   ///< path to the DTD files
+ CString g_pidFile;                      ///< the global .pid file (only for global part of the startup)
+ CString g_pidGameFile;                  ///< the game-specific .pid file
+@@ -949,9 +951,9 @@ void MainFrame::create_game_help_menu( GtkWidget *menu, GtkAccelGroup *accel ){
+ 	list<CGameDescription *>::iterator iGame;
+ 
+ 	// start in the global dir
+-	FileName = g_strAppPath;
++	FileName = g_strDataPath;
+ 	FileName += "global.xlink";
+-	process_xlink( FileName, "General", g_strAppPath.GetBuffer(), menu, accel );
++	process_xlink( FileName, "General", g_strDataPath.GetBuffer(), menu, accel );
+ 
+ 	for ( iGame = g_PrefsDlg.mGamesDialog.mGames.begin(); iGame != g_PrefsDlg.mGamesDialog.mGames.end(); iGame++ )
+ 	{
+@@ -6800,7 +6802,7 @@ void MainFrame::OnHelp(){
+ // FIXME: we'll go towards a unified help thing soon
+ void MainFrame::OnHelpLinks(){
+ 	Str link;
+-	link = g_strAppPath;
++	link = g_strDataPath;
+ 	link += "links.htm";
+ 	OpenURL( m_pWidget, link.GetBuffer() );
+ }
+diff --git a/radiant/pluginmanager.cpp b/radiant/pluginmanager.cpp
+index fc2ed18f..779f43b9 100644
+--- a/radiant/pluginmanager.cpp
++++ b/radiant/pluginmanager.cpp
+@@ -646,7 +646,7 @@ void CPlugInManager::Init(){
+ 	g_qeglobals.bBSPFrontendPlugin = false;
+ 
+ 	InitForDir( g_strGameToolsPath );
+-	InitForDir( g_strAppPath );
++	InitForDir( g_strLibPath );
+ 
+ 	synapse_config = g_strGameToolsPath;
+ 	synapse_config += "synapse.config";
+diff --git a/radiant/preferences.cpp b/radiant/preferences.cpp
+index 416f82e3..4676bc6b 100644
+--- a/radiant/preferences.cpp
++++ b/radiant/preferences.cpp
+@@ -1193,7 +1193,12 @@ void CGameDialog::ScanForGames(){
+ 	CString strPath;
+ 	char *dirlist;
+ 	GDir *dir;
++#ifdef __linux__
++	/* Use ~/.radiant/<version>/games/ instead of /usr/bin/games(!) */
++	CString strGamesPath = g_strTempPath.GetBuffer();
++#else
+ 	CString strGamesPath = g_strAppPath.GetBuffer();
++#endif
+ 	strGamesPath += "games";
+ 	const char *path = strGamesPath.GetBuffer();
+ 
+@@ -3584,7 +3589,13 @@ void CGameInstall::Run() {
+ 	Sys_Printf( "combo: %d name: %s engine: %s mod: %s\n", m_nComboSelect, m_strName.GetBuffer(), m_strEngine.GetBuffer(), m_strMod.GetBuffer() );
+ 
+ 	// Resolve the game pack and .game file
+-	Str gamePack, gameFilePath = g_strAppPath.GetBuffer();
++	Str gamePack, gameFilePath;
++#ifdef __linux__
++	/* Use ~/.radiant/<version>/games/ instead of /usr/bin/games(!) */
++	gameFilePath = g_strTempPath.GetBuffer();
++#else
++	gameFilePath = g_strAppPath.GetBuffer();
++#endif
+ 	gameFilePath += "games/";
+ 	if ( CheckFile( gameFilePath ) != PATH_DIRECTORY ) {
+ 		radCreateDirectory( gameFilePath );
+@@ -3659,10 +3670,12 @@ void CGameInstall::Run() {
+ 		Error( "Invalid game selected: %d", m_availGames[ m_nComboSelect ] );
+ 	}
+ 
+-	Str gameInstallPath = g_strAppPath.GetBuffer();
+-	gameInstallPath += "installs/";
+-	gameInstallPath += gamePack;
+-	gameInstallPath += "/install/";
++	Str gameSourcePath = g_strDataPath;
++	gameSourcePath += "installs/";
++	gameSourcePath += gamePack;
++	gameSourcePath += "/";
++	Str gameInstallPath = gameSourcePath;
++	gameInstallPath += "install/";
+ 	Sys_Printf( "Installing game pack from: %s\n", gameInstallPath.GetBuffer() );
+ 
+ 	// First copy the install directory into the game engine. We do this
+@@ -3682,7 +3695,7 @@ void CGameInstall::Run() {
+ 	fprintf( fg, "<?xml version=\"1.0\" encoding=\"iso-8859-1\" standalone=\"yes\"?>\n<game\n" );
+ 	fprintf( fg, "  name=\"%s\"\n", m_strName.GetBuffer() );
+ 	fprintf( fg, "  " ENGINEPATH_ATTRIBUTE "=\"%s\"\n", m_strEngine.GetBuffer() );
+-	fprintf( fg, "  " TOOLS_ATTRIBUTE "=\"%sinstalls/%s/game\"\n", g_strAppPath.GetBuffer(), gamePack.GetBuffer() );
++	fprintf( fg, "  " TOOLS_ATTRIBUTE "=\"%sgame\"\n", gameSourcePath.GetBuffer() );
+ 
+ 	if ( m_strExecutables.GetLength() > 0 ) {
+ 		fprintf( fg, "  " EXECUTABLES_ATTRIBUTE "=\"%s\"\n", m_strExecutables.GetBuffer() );
+@@ -3868,11 +3881,10 @@ void CGameInstall::Run() {
+    ===============
+  */
+ void CGameInstall::ScanGames() {
+-	Str pakPaths = g_strAppPath.GetBuffer();
++	Str pakPaths = "/usr/share/gtkradiant/installs/";
+ 	int iGame = 0;
+ 	const char      *dirname;
+ 
+-	pakPaths += "installs/";
+ 	FindFiles fileScan( pakPaths.GetBuffer() );
+ 	while ( ( dirname = fileScan.NextFile() ) != NULL ) {
+ 		if ( stricmp( dirname, Q3_PACK ) == 0 ) {
+diff --git a/radiant/qe3.cpp b/radiant/qe3.cpp
+index 4432b3d2..d86e110b 100644
+--- a/radiant/qe3.cpp
++++ b/radiant/qe3.cpp
+@@ -384,8 +384,8 @@ xmlDocPtr ParseXMLStream( IDataStream *stream, bool validate = false ){
+ 	w = buf;
+ 	i = 0;
+ 	// copy
+-	//assert(g_strAppPath.GetBuffer() != NULL);
+-	for ( r = g_strAppPath.GetBuffer(); i < DTD_BUFFER_LENGTH && *r != '\0'; i++, r++ ) w[i] = *r;
++	//assert(g_strDataPath.GetBuffer() != NULL);
++	for ( r = g_strDataPath.GetBuffer(); i < DTD_BUFFER_LENGTH && *r != '\0'; i++, r++ ) w[i] = *r;
+ 	// concatenate
+ 	for ( r = "dtds/"; i < DTD_BUFFER_LENGTH && *r != '\0'; i++, r++ ) w[i] = *r;
+ 	// terminate
+@@ -823,7 +823,7 @@ void QE_InitVFS( void ){
+ 	// *nix systems have a dual filesystem in ~/.q3a, which is searched first .. so we need to add that too
+ 	Str directory,prefabs;
+ 
+-	Str basePakPath = g_strAppPath.GetBuffer();
++	Str basePakPath = g_strDataPath.GetBuffer();
+ 	basePakPath += "base";
+ 	vfsInitDirectory( basePakPath.GetBuffer() );
+ 
+diff --git a/radiant/qe3.h b/radiant/qe3.h
+index 0f26bc59..67e55beb 100644
+--- a/radiant/qe3.h
++++ b/radiant/qe3.h
+@@ -761,6 +761,8 @@ class ClipPoint;
+ 
+ extern MainFrame* g_pParentWnd;
+ extern CString g_strAppPath;
++extern CString g_strDataPath;
++extern CString g_strLibPath;
+ extern CString g_strDTDPath;
+ extern CString g_pidFile;
+ extern CString g_pidGameFile;
