@@ -1,0 +1,20 @@
+Description: urllib3.request might be needed on win32, but failed on Bionic
+
+diff --git a/config.py b/config.py
+index 87dde5dd..37634484 100644
+--- a/config.py
++++ b/config.py
+@@ -7,10 +7,12 @@ import platform
+ import re
+ import subprocess
+ import platform
+-import urllib3.request
+ import zipfile
+ import shutil
+ 
++if sys.platform == 'win32':
++    import urllib3.request
++
+ if __name__ != '__main__':
+     from SCons.Script import *
+ 

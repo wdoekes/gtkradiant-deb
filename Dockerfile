@@ -7,6 +7,22 @@ LABEL dockerfile-vcs=https://github.com/wdoekes/gtkradiant-deb
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+# This time no "keeping the build small". We only use this container for
+# building/testing and not for running, so we can keep files like apt
+# cache. We do this before copying anything and before getting lots of
+# ARGs from the user. That keeps this bit cached.
+RUN echo 'APT::Install-Recommends "0";' >/etc/apt/apt.conf.d/01norecommends
+RUN apt-get update -q
+RUN apt-get install -y apt-utils
+RUN apt-get dist-upgrade -y
+RUN apt-get install -y \
+    bzip2 ca-certificates curl git \
+    build-essential dh-autoreconf devscripts dpkg-dev equivs quilt
+
+# Apt-get prerequisites according to control file.
+COPY control /build/debian/control
+RUN mk-build-deps --install --remove --tool "apt-get -y" /build/debian/control
+
 # ubuntu, ubu, focal, gtkradiant, 1.6.6, '', 0wjd0
 ARG osdistro
 ARG osdistshort
@@ -27,29 +43,14 @@ RUN . /etc/os-release && fullversion="${upversion}-${debversion}+${osdistshort}$
     if test "$(head -n1 /build/debian/changelog)" != "${expected}"; \
     then echo "${expected}  <-- mismatch" >&2; false; fi
 
-# This time no "keeping the build small". We only use this container for
-# building/testing and not for running, so we can keep files like apt
-# cache.
-RUN echo 'APT::Install-Recommends "0";' >/etc/apt/apt.conf.d/01norecommends
-RUN apt-get update -q
-RUN apt-get install -y apt-utils
-RUN apt-get dist-upgrade -y
-RUN apt-get install -y \
-    bzip2 ca-certificates curl git \
-    build-essential dh-autoreconf devscripts dpkg-dev equivs quilt
-
-# Apt-get prerequisites according to control file.
-COPY control /build/debian/control
-RUN mk-build-deps --install --remove --tool "apt-get -y" /build/debian/control
-
 # Set up upstream source, move debian dir and jump into dir.
 # We want the current GtkRadiant build, but we do not need everything in the .git folder.
 COPY ./GtkRadiant/ /build/GtkRadiant
 WORKDIR /build/GtkRadiant
-# Check that the version is still 1.6.6+X
+# Check that the version is still $upversion+X.
 # (Note that RADIANT_MAJOR_VERSION and RADIANT_MINOR_VERSION in version.h
 # refer to MINOR and MICRO version respectively, while MAJOR is 1.)
-RUN grep -xF '#define RADIANT_VERSION "1.6.6"' include/version.h
+RUN grep -xF '#define RADIANT_VERSION "'$upversion'"' include/version.h
 # Update version sources to include git version
 RUN echo 'Custom build by wdoekes' > include/aboutmsg.default
 RUN echo "$upversion+$(git log -1 --date='format:%Y%m%d' --format='%cd.%h')" > include/version.default

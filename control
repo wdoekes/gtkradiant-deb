@@ -4,11 +4,8 @@ Maintainer: Walter Doekes <wjdoekes+gtkradiant@osso.nl>
 # "How to build" for 20.04 (from upstream README), slightly adapted.
 Build-Depends:
  debhelper (>= 9),
- autotools-dev,
- dh-autoreconf,
- python2,
+ python2 | python (<< 3),
  python3,
- python3-urllib3,
  scons,
  subversion,
  libxml2-dev,
