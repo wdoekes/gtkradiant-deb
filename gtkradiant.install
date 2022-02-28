@@ -1,4 +1,5 @@
 install/radiant.bin usr/bin/
+debian/gtkradiant.desktop usr/share/applications/
 bspc/bspc usr/bin/
 install/q3data usr/bin/
 install/q3map2 usr/bin/

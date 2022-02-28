@@ -93,7 +93,6 @@ TODO
 * Decide how to name the orig.tar.gz file. And consider doing a reproducible tar.gz
   (like: --numeric-owner --owner=0 --group=0 --mtime='1970-01-01 00:00:00' --no-recursion --null --files-from - )
 * Rename ``radiant.bin`` to ``radiant``? or ``gtkradiant``?
-* Check X icons and .desktop files.
 * Document q3-make-bsp stuff.
 * Add other gamepacks as DEB files.
 * Remove XXX/FIXMEs here.
@@ -101,3 +100,6 @@ TODO
 * Check dbgsym files. And enable -g debug symbols in scons build?
 * https://www.tcmapping.com/q3map2-vis-hint/#how_to_see_the_result for HINT
 * https://victorkarp.com/de/quake-3-mapping-tutorials/
+* https://www.cs.rochester.edu/~brown/242/docs/RadiantTut.html
+* Shader flags from the horse's mouth:
+  https://github.com/id-Software/Quake-III-Arena/blob/dbe4ddb10315479fc00086f08e25d968b4b43c49/q3map/shaders.c#L64-L112

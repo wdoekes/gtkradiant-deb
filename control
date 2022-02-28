@@ -17,7 +17,7 @@ Build-Depends:
  libgtkglext1-dev,
  libjpeg8-dev
 Standards-Version: 3.9.6
-Section: admin
+Section: games
 Homepage: https://github.com/TTimo/GtkRadiant
 Vcs-Browser: https://github.com/TTimo/GtkRadiant
 Vcs-Git: https://github.com/TTimo/GtkRadiant

@@ -73,7 +73,7 @@ RUN cd .. && tar --exclude-vcs --exclude='*.srctrl*' --exclude=__pycache__ \
 
 # Make new debian dir and add everything this time.
 RUN mkdir debian
-COPY changelog compat control rules *.docs *.install *.manpages debian/
+COPY changelog compat control rules gtkradiant* debian/
 COPY patches debian/patches
 COPY source debian/source
 

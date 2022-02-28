@@ -1,3 +1,4 @@
-bspc-fix-warnings.patch
 bspc-no-strip.patch
+bspc-do-not-leave-log-turds-for-nothing.patch
+bspc-fix-warnings.patch
 radiant-paths.patch

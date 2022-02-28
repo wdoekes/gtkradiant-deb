@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Name=GtkRadiant
+Comment=idTech games level editor
+GenericName=Radiant
+Exec=radiant.bin %u
+Terminal=false
+StartupWMClass=Radiant.bin
+Type=Application
+Icon=/usr/share/gtkradiant/bitmaps/icon.png
+Categories=GNOME;GTK;Games;
+StartupNotify=true

@@ -358,20 +358,6 @@ index 3a8ab63..3699198 100644
  
  	expanded = ExpandPath (path);
  
-diff --git a/l_log.c b/l_log.c
-index 6a69c2b..e3c920e 100644
---- a/bspc/l_log.c
-+++ b/bspc/l_log.c
-@@ -61,7 +61,8 @@ void Log_Open(char *filename)
- 		printf("can't open the log file %s\n", filename);
- 		return;
- 	} //end if
--	strncpy(logfile.filename, filename, MAX_LOGFILENAMESIZE);
-+	logfile.filename[0] = logfile.filename[MAX_LOGFILENAMESIZE - 1] = '\0';
-+	strncat(logfile.filename, filename, MAX_LOGFILENAMESIZE - 1);
- 	printf("Opened log %s\n", logfile.filename);
- } //end of the function Log_Create
- //===========================================================================
 diff --git a/l_mem.c b/l_mem.c
 index 2636b68..06ad594 100644
 --- a/bspc/l_mem.c
