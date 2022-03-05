@@ -19,6 +19,15 @@ RUN apt-get install -y \
     bzip2 ca-certificates curl git \
     build-essential dh-autoreconf devscripts dpkg-dev equivs quilt
 
+# Set up build env
+RUN printf "%s\n" \
+    QUILT_PATCHES=debian/patches \
+    QUILT_NO_DIFF_INDEX=1 \
+    QUILT_NO_DIFF_TIMESTAMPS=1 \
+    'QUILT_REFRESH_ARGS="-p ab --no-timestamps --no-index"' \
+    'QUILT_DIFF_OPTS="--show-c-function"' \
+    >~/.quiltrc
+
 # Apt-get prerequisites according to control file.
 COPY control /build/debian/control
 RUN mk-build-deps --install --remove --tool "apt-get -y" /build/debian/control
@@ -50,7 +59,13 @@ WORKDIR /build/GtkRadiant
 # Check that the version is still $upversion+X.
 # (Note that RADIANT_MAJOR_VERSION and RADIANT_MINOR_VERSION in version.h
 # refer to MINOR and MICRO version respectively, while MAJOR is 1.)
-RUN grep -xF '#define RADIANT_VERSION "'$upversion'"' include/version.h
+RUN if ! test -f include/version.h; then \
+        grep -xF "$upversion" include/version.default; \
+    else \
+        # BUG: in 1.6.6 version.h is committed and include/version.default
+        # and include/version.default is NOT updated.
+        grep -xF '#define RADIANT_VERSION "'$upversion'"' include/version.h; \
+    fi
 # Update version sources to include git version
 RUN echo 'Custom build by wdoekes' > include/aboutmsg.default
 RUN echo "$upversion+$(git log -1 --date='format:%Y%m%d' --format='%cd.%h')" > include/version.default
@@ -58,7 +73,9 @@ RUN python2 makeversion.py
 
 # Skip updating GIT/SVN repo's *again*, because we do so in
 # Dockerfile.build already.
-RUN sed -i -e "s/cmd = [[] \('git', 'pull'\|'svn', 'update'\)/cmd = [ 'echo', 'skipping:', \1/" config.py
+RUN if test -f config.py; then \
+        sed -i -e "s/cmd = [[] \('git', 'pull'\|'svn', 'update'\)/cmd = [ 'echo', 'skipping:', \1/" config.py; \
+    fi
 
 # Check that bspc has checksum patch:
 RUN git -C bspc branch --contains 8aa16e1986a1ac93f5992e144552eccab27035c1 | grep -xF '* master'
@@ -77,15 +94,6 @@ RUN mkdir debian
 COPY changelog compat control rules gtkradiant* debian/
 COPY patches debian/patches
 COPY source debian/source
-
-# Set up build env
-RUN printf "%s\n" \
-    QUILT_PATCHES=debian/patches \
-    QUILT_NO_DIFF_INDEX=1 \
-    QUILT_NO_DIFF_TIMESTAMPS=1 \
-    'QUILT_REFRESH_ARGS="-p ab --no-timestamps --no-index"' \
-    'QUILT_DIFF_OPTS="--show-c-function"' \
-    >~/.quiltrc
 
 # Build (no source pkg, so -b and manual quilt push)
 #RUN quilt push -a
