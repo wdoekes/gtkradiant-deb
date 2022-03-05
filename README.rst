@@ -59,30 +59,10 @@ Game configuration will be stored in ``~/.radiant/1.6.6+20220124.97d3d879``::
 You may need to copy these configuration files when switching versions.
 
 
-Running quake
--------------
+Other
+-----
 
-When you have a BSP file (and optionally an AAS)::
-
-    quake3 +sv_pure 0 +devmap q3dm7sample
-
-When you've compiled the BSP and AAS into a PK3::
-
-    quake3 +map q3dm7sample
-
-Adding bots to the game::
-
-    quake3 +map q3dm7sample +addbot grunt +addbot anarki
-
-
-Debugging quake3
-----------------
-
-When you're running a ``+devmap``::
-
-    /set r_showtris 1
-
-See also: https://wiki.splashdamage.com/index.php/Console_commands
+See `README-quake3.rst`_ for Quake3 specific setup.
 
 
 TODO

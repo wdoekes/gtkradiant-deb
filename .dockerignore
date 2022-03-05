@@ -3,6 +3,7 @@
 /Dockerfile.out
 /Dockerfile
 /README.rst
+/README-quake3.rst
 
 /.dockerignore
 /.git
