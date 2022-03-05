@@ -48,6 +48,10 @@ Or, better yet, install ``quake3-data``, containing::
 Create batch files for ``quake3-demo``::
 
     #!/bin/sh
+    if [ -n "$1" -a "${1#+}" = "$1" ]; then
+        echo "usage: $0 [+params...]" >&2
+        exit 1
+    fi
     exec /usr/lib/ioquake3/ioquake3 \
       +set vm_cgame 0 +set vm_game 0 +set vm_ui 0 \
       +set fs_basepath /usr/share/games/quake3-demo-data \
@@ -58,6 +62,10 @@ Create batch files for ``quake3-demo``::
 Or, for ``quake3``::
 
     #!/bin/sh
+    if [ -n "$1" -a "${1#+}" = "$1" ]; then
+        echo "usage: $0 [+params...]" >&2
+        exit 1
+    fi
     exec /usr/lib/ioquake3/ioquake3 \
       +set vm_cgame 0 +set vm_game 0 +set vm_ui 0 \
       +set fs_basepath /usr/share/games/quake3 \
@@ -80,6 +88,10 @@ If things are too dark (``~``)::
     /r_overbrightbits "0"
     /r_ignorehwgamma "1"
     /vid_restart
+
+Skipping CD KEY prompt::
+
+    echo $(for x in $(seq 16); do echo -n 2; done) >~/.q3a/baseq3/q3key
 
 
 Running quake3
