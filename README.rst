@@ -65,6 +65,52 @@ Other
 See `README-quake3.rst`_ for Quake3 specific setup.
 
 
+BUGS
+----
+
+* entities.def in user0.proj is set from the wrong location::
+
+    GtkRadiant/install/installs/Q3Pack$ svn diff
+    Index: install/baseq3/scripts/default_project.proj
+    ===================================================================
+    --- install/baseq3/scripts/default_project.proj	(revision 144)
+    +++ install/baseq3/scripts/default_project.proj	(working copy)
+    @@ -21,7 +21,7 @@
+     <key name="basepath" value="$TEMPLATEenginepath$TEMPLATEbasedir/"/>
+     <key name="rshcmd" value=""/>
+     <key name="remotebasepath" value="$TEMPLATEenginepath$TEMPLATEbasedir/"/>
+    -<key name="entitypath" value="$TEMPLATEtoolspath$TEMPLATEbasedir/scripts/entities.def"/>
+    +<key name="entitypath" value="$TEMPLATEuserhomepath$TEMPLATEbasedir/scripts/entities.def"/>
+
+* radiant.mo is first checked in::
+
+    ~/Documents/q3maps/baseq3/scripts/lang/en_US.UTF-8/LC_MESSAGES/radiant.mo
+    ...
+    /usr/share/locale-langpack/en_US.UTF-8/LC_MESSAGES/radiant.mo
+    ...
+
+* Order of paths checked (not a bug, but a listing)::
+
+    (look for config)
+    ~/.radiant/1.6.6+20220124.97d3d879/games (config)
+
+    (look for modules)
+    /usr/lib/x86_64-linux-gnu/gtkradiant/modules/ (needed)
+    /usr/lib/x86_64-linux-gnu/gtkradiant/plugins/ (empty)
+    /usr/share/gtkradiant/installs/Q3Pack/game/modules/ (optional)
+    /usr/share/gtkradiant/installs/Q3Pack/game/plugins/ (optional)
+
+    (look for pk3s)
+    /usr/share/gtkradiant/base
+    ~/.q3a/baseq3
+    ~/Documents/q3maps/baseq3
+
+    (look for scripts/scripts/textures)
+    /usr/share/gtkradiant/base/{scripts,sprites,textures}
+    ~/.q3a/baseq3/{scripts,sprites,textures}
+    ~/Documents/q3maps/baseq3/{scripts,sprites,textures}
+
+
 TODO
 ----
 

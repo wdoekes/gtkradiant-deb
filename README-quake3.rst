@@ -73,6 +73,23 @@ Or, for ``quake3``::
       "$@"
 
 
+Using q3.make
+-------------
+
+If you've placed ``q3.make`` in your path, you can do::
+
+    q3.make mymap.pk3
+
+And it will do all necessary steps to build the map and zip it up for you.
+
+If you have your own textures etc. (not in ``pak?.pk3``), you'll need to
+include those too::
+
+    q3.make mymap.pk3 INCLUDE='env/mymap textures/mymap scripts/mymap.shader'
+
+Paths will be autodetected by reading file in ``~/.radiant``.
+
+
 Configuring quake3
 ------------------
 
