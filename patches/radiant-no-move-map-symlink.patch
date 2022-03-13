@@ -1,0 +1,28 @@
+Description: do not rename() .map symlinks, but just overwrite them
+ If the user uses symlinks (perhaps from a carefully constructed CVS path),
+ we would break the symlink when saving the map file. Do not write a .bak
+ file in this case and just overwrite the symlink target.
+
+diff --git a/radiant/map.cpp b/radiant/map.cpp
+index 3696d4e8..fb45b0cb 100644
+--- a/radiant/map.cpp
++++ b/radiant/map.cpp
+@@ -775,7 +775,17 @@ void Map_SaveFile( const char *filename, qboolean use_region ){
+ 
+ 	Pointfile_Clear();
+ 
+-	if ( !use_region ) {
++	bool make_backup = !use_region;
++
++	/* We don't want a backup + rename operation if the .map file is
++	 * a symlink. Otherwise we'll break the user's careful symlink setup.
++	 * Just overwrite the original file. Assume the user has versioning. */
++	struct stat st;
++	if ( lstat(filename, &st) == 0 && (st.st_mode & S_IFMT) == S_IFLNK ) {
++	    make_backup = false;
++	}
++
++	if ( make_backup ) {
+ 		char backup[1024];
+ 
+ 		// rename current to .bak

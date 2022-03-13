@@ -3,3 +3,4 @@ bspc-do-not-leave-log-turds-for-nothing.patch
 bspc-fix-warnings.patch
 scons-no-urllib3-in-bionic.patch
 radiant-paths.patch
+radiant-no-move-map-symlink.patch
