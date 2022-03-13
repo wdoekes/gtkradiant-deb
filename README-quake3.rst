@@ -29,7 +29,6 @@ Install ``quake3-demo-data`` from somewhere, which contains::
 Or, better yet, install ``quake3-data``, containing::
 
     /usr/share/games/quake3/baseq3/cgamex86_64.so
-    /usr/share/games/quake3/baseq3/map-demo.pk3
     /usr/share/games/quake3/baseq3/pak0.pk3
     /usr/share/games/quake3/baseq3/pak1.pk3
     /usr/share/games/quake3/baseq3/pak2.pk3
@@ -88,6 +87,10 @@ include those too::
     q3.make mymap.pk3 INCLUDE='env/mymap textures/mymap scripts/mymap.shader'
 
 Paths will be autodetected by reading file in ``~/.radiant``.
+
+**BEWARE:** If you include ``mymap.shader`` in multiple maps, and leave
+the same PK3 files accessible, you won't know which version you're
+getting. Delete old PK3 files to be on the safe side.
 
 
 Configuring quake3

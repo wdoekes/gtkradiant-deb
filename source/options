@@ -1,5 +1,5 @@
 # Keep in sync with Dockerfile source creation tar --exclude options
-extend-diff-ignore = ".*[.]srctrl*"
+extend-diff-ignore = ".*[.]pyc|.*[.]srctrl*"
 tar-ignore = ".git"
 tar-ignore = ".svn"
 tar-ignore = "*.srctrl*"
