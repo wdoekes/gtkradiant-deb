@@ -1,0 +1,102 @@
+Description: fix so loading+saving the map does not mutate it needlessly
+ When using CVS to keep changes, we don't want useless changes.
+ Previously, brushes were loaded in reverse order, so every load+save
+ would reverse the order of brush faces. Similar things happened to the
+ entity keys. This changesets forward-loads the faces, and
+ dictionary-sorts entities (in various pieces of code).
+
+diff --git a/plugins/entity/entity.cpp b/plugins/entity/entity.cpp
+index 7f8df9a7..1f93ce06 100644
+--- a/plugins/entity/entity.cpp
++++ b/plugins/entity/entity.cpp
+@@ -139,24 +139,34 @@ const char *ValueForKey( entity_t *ent, const char *key ){
+ }
+ 
+ void    SetKeyValue( epair_t *&e, const char *key, const char *value ){
++	/* insert linked list items, sorted by key */
+ 	epair_t *ep;
++	epair_t **insert_at = &e;
+ 	for ( ep = e ; ep ; ep = ep->next )
+ 	{
+-		if ( !strcmp( ep->key, key ) ) {
++		int cmp = strcmp( ep->key, key );
++		if ( cmp == 0 ) {
+ 			free( ep->value );
+ 			ep->value = (char*)malloc( strlen( value ) + 1 );
+ 			strcpy( ep->value, value );
+ 			return;
++		} else if ( cmp < 0 ) {
++			/* last known value where the linked-list item sorts
++			 * before the new key */
++			insert_at = &ep->next;
++		} else {
++			/* we could 'break' here, but only if we are
++			 * 100% certain others are not mutating this
++			 * list (and making it unsorted) */
+ 		}
+ 	}
+ 	ep = (epair_t*)malloc( sizeof( *ep ) );
+-	ep->next = e;
+-	e = ep;
++	ep->next = *insert_at;
++	*insert_at = ep;
+ 	ep->key = (char*)malloc( strlen( key ) + 1 );
+ 	strcpy( ep->key, key );
+ 	ep->value = (char*)malloc( strlen( value ) + 1 );
+ 	strcpy( ep->value, value );
+-
+ }
+ 
+ void SetKeyValue( entity_t *ent, const char *key, const char *value ){
+diff --git a/plugins/map/parse.cpp b/plugins/map/parse.cpp
+index a67bd7f5..dafca381 100644
+--- a/plugins/map/parse.cpp
++++ b/plugins/map/parse.cpp
+@@ -514,14 +514,23 @@ bool Primitive_Parse( brush_t *pBrush ){
+ 		}
+ 	}
+ 	else if ( !strcmp( token, "brushDef" ) ) {
++		face_t **next_face = &pBrush->brush_faces;
+ 		pBrush->bBrushDef = true;
+ 		GetToken( true ); // {
+ 		while ( 1 )
+ 		{
++#if 0
++			/* Load in reverse order */
+ 			face_t    *f = pBrush->brush_faces;
+ 			pBrush->brush_faces = Face_Alloc();
+ 			Face_Parse( pBrush->brush_faces, true );
+ 			pBrush->brush_faces->next = f;
++#else
++			/* Load in forward order */
++			*next_face = Face_Alloc();
++			Face_Parse( *next_face, true );
++			next_face = &((*next_face)->next);
++#endif
+ 			// check for end of brush
+ 			GetToken( true );
+ 			if ( strcmp( token,"}" ) == 0 ) {
+@@ -533,14 +542,22 @@ bool Primitive_Parse( brush_t *pBrush ){
+ 	}
+ 	else
+ 	{
++		face_t **next_face = &pBrush->brush_faces;
+ 		UnGetToken();
+ 		while ( 1 )
+ 		{
++#if 0
++			/* Load in reverse order */
+ 			face_t    *f = pBrush->brush_faces;
+ 			pBrush->brush_faces = Face_Alloc();
+ 			Face_Parse( pBrush->brush_faces );
+ 			pBrush->brush_faces->next = f;
+-
++#else
++			/* Load in forward order */
++			*next_face = Face_Alloc();
++			Face_Parse( *next_face );
++			next_face = &((*next_face)->next);
++#endif
+ 			// check for end of brush
+ 			GetToken( true );
+ 			if ( strcmp( token,"}" ) == 0 ) {
