@@ -16,7 +16,7 @@ The files may look similar to these::
     -      7,848  gtkradiant_1.6.6-0wjd0+ubu20.04.debian.tar.xz
     -      1,249  gtkradiant_1.6.6-0wjd0+ubu20.04.dsc
     - 48,235,829  gtkradiant_1.6.6.orig.tar.gz
-    -    178,860  gtkradiant-dbgsym_1.6.6-0wjd0+ubu20.04_amd64.ddeb
+    - 11,234,780  gtkradiant-dbgsym_1.6.6-0wjd0+ubu20.04_amd64.ddeb
     -  2,017,400  gtkradiant-game-q3pack_1.6.6-0wjd0+ubu20.04_all.deb
 
 The ``gtkradiant*.orig.tar.gz`` contains source files from multiple
@@ -138,7 +138,6 @@ TODO
 * Document q3-make-bsp stuff.
 * Remove XXX/FIXMEs here.
 * Try to get some patches merged back into TTimo repo.
-* Check dbgsym files. And enable -g debug symbols in scons build?
 * https://www.tcmapping.com/q3map2-vis-hint/#how_to_see_the_result for HINT
 * https://victorkarp.com/de/quake-3-mapping-tutorials/
 * https://www.cs.rochester.edu/~brown/242/docs/RadiantTut.html

@@ -1,9 +1,20 @@
-Description: do not strip binary in make step
+Description: do not strip binary in make step and add debug symbols
  Binary stripping can be done later (so the debug symbols go into the
  dbgsym packages).
 
+diff --git a/Makefile b/Makefile
+index f5fe36f..1848c4e 100644
 --- a/bspc/Makefile
 +++ b/bspc/Makefile
+@@ -5,7 +5,7 @@ CFLAGS=\
+ 	-fno-common \
+ 	-I. -Ideps -Wall
+ 
+-RELEASE_CFLAGS=-O3 -ffast-math
++RELEASE_CFLAGS=-g -O3 -ffast-math
+ DEBUG_CFLAGS=-g -O0 -ffast-math
+ LDFLAGS=-lm -lpthread -fno-common
+ 
 @@ -91,7 +91,6 @@ release: $(EXEC)
  
  $(EXEC): $(GAME_OBJS)

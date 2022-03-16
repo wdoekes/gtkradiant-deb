@@ -1,0 +1,17 @@
+Description: add -g for more symbols in the dbgsym ddeb
+
+diff --git a/config.py b/config.py
+index 87dde5dd..1ea5e293 100644
+--- a/config.py
++++ b/config.py
+@@ -265,8 +265,8 @@ class Config:
+             env.Append( CXXFLAGS = [ '-g' ] )
+             env.Append( CPPDEFINES = [ '_DEBUG' ] )
+         else:
+-            env.Append( CFLAGS = [ '-O2', '-fno-strict-aliasing' ] )
+-            env.Append( CXXFLAGS = [ '-O2', '-fno-strict-aliasing' ] )
++            env.Append( CFLAGS = [ '-g', '-O2', '-fno-strict-aliasing' ] )
++            env.Append( CXXFLAGS = [ '-g', '-O2', '-fno-strict-aliasing' ] )
+ 
+             # this lets us catch libjpg and libpng libraries that we put in the same directory as radiant.bin
+             env.Append( LINKFLAGS = '-Wl,-rpath,.' )

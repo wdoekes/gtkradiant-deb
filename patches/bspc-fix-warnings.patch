@@ -11,7 +11,7 @@ index f5fe36f..3fa1e12 100644
 -	-I. -Ideps -Wall
 +	-I. -Ideps -Wall -Werror=all -Wno-error=format-truncation
  
- RELEASE_CFLAGS=-O3 -ffast-math
+ RELEASE_CFLAGS=-g -O3 -ffast-math
  DEBUG_CFLAGS=-g -O0 -ffast-math
 diff --git a/aas_facemerging.c b/aas_facemerging.c
 index b6ac76d..4a0c2f0 100644
