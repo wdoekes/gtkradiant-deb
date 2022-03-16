@@ -62,32 +62,40 @@ You may need to copy these configuration files when switching versions.
 Other
 -----
 
-See `README-quake3.rst`_ for Quake3 specific setup.
+See `<README-quake3.rst>`_ for Quake3 specific setup.
 
 
 BUGS
 ----
 
-* entities.def in user0.proj is set from the wrong location::
+* The ``"entitypath"`` in ``default_project.proj`` points to a non-existent
+  path, but it is not used either. ``entities.def`` is loaded in
+  ``radiant/eclass.cpp``::
 
-    GtkRadiant/install/installs/Q3Pack$ svn diff
-    Index: install/baseq3/scripts/default_project.proj
-    ===================================================================
-    --- install/baseq3/scripts/default_project.proj	(revision 144)
-    +++ install/baseq3/scripts/default_project.proj	(working copy)
-    @@ -21,7 +21,7 @@
-     <key name="basepath" value="$TEMPLATEenginepath$TEMPLATEbasedir/"/>
-     <key name="rshcmd" value=""/>
-     <key name="remotebasepath" value="$TEMPLATEenginepath$TEMPLATEbasedir/"/>
-    -<key name="entitypath" value="$TEMPLATEtoolspath$TEMPLATEbasedir/scripts/entities.def"/>
-    +<key name="entitypath" value="$TEMPLATEuserhomepath$TEMPLATEbasedir/scripts/entities.def"/>
+    // read in all scripts/*.<extension>
+    pFiles = vfsGetFileList( "scripts", pTable->m_pfnGetExtension() );
 
-* radiant.mo is first checked in::
+  The Q3Path ``default_project.proj`` points to::
 
-    ~/Documents/q3maps/baseq3/scripts/lang/en_US.UTF-8/LC_MESSAGES/radiant.mo
-    ...
-    /usr/share/locale-langpack/en_US.UTF-8/LC_MESSAGES/radiant.mo
-    ...
+    <key name="entitypath" value="$TEMPLATEtoolspath$TEMPLATEbasedir/scripts/entities.def"/>
+
+  That would become::
+
+     /usr/share/gtkradiant/installs/Q3Pack/install/baseq3/scripts/entities.def
+
+  That file does not exist in that location, but *randiant.bin* has no
+  issue finding ``entities.def`` in the correct location. It does so by scanning::
+
+    <enginepath_linux>/<basegame>/scripts/*.def
+
+  I suspect "entitypath" could be removed altogether as it only appears
+  to be referenced in ``tools/quake2/extra/qe4/qe3.c``.
+
+
+FUTURE WORK
+-----------
+
+* Add other gamepacks as DEB files. Alter/update/fix README-quake3.rst.
 
 * Order of paths checked (not a bug, but a listing)::
 
@@ -120,7 +128,6 @@ TODO
   (like: --numeric-owner --owner=0 --group=0 --mtime='1970-01-01 00:00:00' --no-recursion --null --files-from - )
 * Rename ``radiant.bin`` to ``radiant``? or ``gtkradiant``?
 * Document q3-make-bsp stuff.
-* Add other gamepacks as DEB files.
 * Remove XXX/FIXMEs here.
 * Try to get some patches merged back into TTimo repo.
 * Check dbgsym files. And enable -g debug symbols in scons build?

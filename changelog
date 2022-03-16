@@ -1,13 +1,13 @@
 gtkradiant (1.6.6-0wjd1+ubu20.04) UNRELEASED; urgency=medium
 
   * Update patch files. Fix warnings in bspc code.
-  * Testing additional fixes...
   * Add patch to NOT rename *.map symlinks, but overwriting their contents.
     Useful when you're working on a symlink to a map file from a
     single-map-file repository.
   * Add patch to NOT load brush faces in reverse order. This patch also
     dictionary sorts the entities dictionary. This fix makes saved .map files
     contain fewer "changes".
+  * Document that entities.def are not loaded from the "entitypath".
 
  -- Walter Doekes <wjdoekes+gtkradiant@osso.nl>  Sun, 27 Feb 2022 17:39:33 +0100
 

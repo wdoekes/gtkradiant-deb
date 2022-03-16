@@ -36,7 +36,7 @@ index 05d49c77..9e8d93b4 100644
  	str += "bitmaps/";
  	str += filename;
 diff --git a/radiant/main.cpp b/radiant/main.cpp
-index 33e1e4c5..bb28b764 100644
+index 33e1e4c5..876f7245 100644
 --- a/radiant/main.cpp
 +++ b/radiant/main.cpp
 @@ -115,187 +115,6 @@ static void create_splash() {
