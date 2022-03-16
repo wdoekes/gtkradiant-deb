@@ -227,6 +227,15 @@ index 33e1e4c5..876f7245 100644
  void error_redirect( const gchar *domain, GLogLevelFlags log_level, const gchar *message, gpointer user_data ){
  	gboolean in_recursion;
  	gboolean is_fatal;
+@@ -412,7 +231,7 @@ void error_redirect( const gchar *domain, GLogLevelFlags log_level, const gchar
+ }
+ 
+ #define GETTEXT_PACKAGE "radiant"
+-#define LOCALEDIR "lang"
++#define LOCALEDIR "/usr/share/locale"
+ 
+ int mainRadiant( int argc, char* argv[] ) {
+ 	const char *libgl;
 @@ -578,6 +397,8 @@ int mainRadiant( int argc, char* argv[] ) {
  		g_strTempPath = g_strAppPath;
  	}

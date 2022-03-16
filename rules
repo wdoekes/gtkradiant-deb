@@ -8,6 +8,7 @@ export DH_VERBOSE=1
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 SCONS = scons
+HASH := \#
 
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
 	NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
@@ -26,5 +27,12 @@ override_dh_auto_build:
 
 override_dh_auto_install:
 	# Install into ./install/
-	SCONSFLAGS=$(SCONSFLAGS) $(SCONS) install 
+	SCONSFLAGS=$(SCONSFLAGS) $(SCONS) install
 	# bspc is "installed" in ./bspc/
+
+	# Create language files from po/*.po into ./install/locale/
+	for pofile in po/*.po; do \
+	    lang=$${pofile$(HASH)po/} && lang=$${lang%.po} && \
+	    mkdir -p install/locale/$$lang/LC_MESSAGES && \
+	    msgfmt -c "$$pofile" -o install/locale/$$lang/LC_MESSAGES/radiant.mo; \
+	done

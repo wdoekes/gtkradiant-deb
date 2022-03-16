@@ -29,6 +29,7 @@ The ``gtkradiant*.deb`` holds files in::
     - /usr/lib/x86_64-linux-gnu/gtkradiant (plugins/modules)
     - /usr/share/doc/gtkradiant (docs)
     - /usr/share/gtkradiant (arch independent data files, images)
+    - /usr/share/locale (translations)
 
 The ``gtkradiant-game-q3pack*.deb`` holds files in::
 
@@ -96,6 +97,13 @@ FUTURE WORK
 -----------
 
 * Add other gamepacks as DEB files. Alter/update/fix README-quake3.rst.
+
+* The German language file in ``po/de.po`` appears to work, assuming you
+  have generated the German locale (``locale-gen de_DE.UTF-8``) and
+  running with ``LC_ALL=de_DE.UTF-8 radiant.bin``. However, ``msgfmt``
+  throws some warnings, and (worse) the application starts with odd
+  looking color schemes. (If we're working on this, we may want to see
+  if we can regenerate ``radiant.pot`` automatically too.)
 
 * Order of paths checked (not a bug, but a listing)::
 
