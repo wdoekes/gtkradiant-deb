@@ -81,13 +81,22 @@ RUN if test -f config.py; then \
 RUN git -C bspc branch --contains 8aa16e1986a1ac93f5992e144552eccab27035c1 | grep -xF '* master'
 
 # Make source tars:
+RUN git -C bspc clean -dfx
+# ^-- don't clean parent, it would remove our .git and .svn subdirs,
+#     unless we git init in install/installs
 RUN find . -type d -name '.git' | \
     xargs -IX env DIR='X' sh -c 'DIR=${DIR%/.git} && git -C "$DIR" show >"$DIR/SOURCE_VERSION"'
 RUN find . -type d -name '.svn' | \
     xargs -IX env DIR='X' sh -c 'DIR=${DIR%/.svn} && svn info "$DIR" >"$DIR/SOURCE_VERSION"'
-RUN cd .. && tar --exclude-vcs --exclude='*.srctrl*' --exclude=__pycache__ \
-    --exclude='*.pyc' --exclude='*.orig' --exclude='*.rej' \
-    -zcf ${upname}_${upversion}.orig.tar.gz GtkRadiant
+# (reproducible tar, with 1970 timestamps, sorted, etc..)
+RUN cd .. && \
+    find GtkRadiant '!' '(' \
+      -type d -o -name .gitignore -o -name .gitmodules -o -path '*/.git/*' -o -path '*/.svn/*' \
+      -o -name '*.srctrl*' -o -name '*.rej' -o -name '*.orig' -o -name '*.o' -o -name '*.pyc' ')' \
+      -print0 | LC_ALL=C sort -z | tar -cf ${upname}_${upversion}.orig.tar \
+      --numeric-owner --owner=0 --group=0 --mtime='1970-01-01 00:00:00' \
+      --no-recursion --null --files-from - && \
+    gzip --no-name ${upname}_${upversion}.orig.tar
 
 # Make new debian dir and add everything this time.
 RUN mkdir debian

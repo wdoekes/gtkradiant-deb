@@ -132,8 +132,6 @@ TODO
 
 * Document where to best install the maps directory (the initial Game
   setup path: ``Documents/radiant-quake3`` vs ``~/.q3a``).
-* Decide how to name the orig.tar.gz file. And consider doing a reproducible tar.gz
-  (like: --numeric-owner --owner=0 --group=0 --mtime='1970-01-01 00:00:00' --no-recursion --null --files-from - )
 * Rename ``radiant.bin`` to ``radiant``? or ``gtkradiant``?
 * Document q3-make-bsp stuff.
 * Remove XXX/FIXMEs here.
