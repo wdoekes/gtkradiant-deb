@@ -121,6 +121,8 @@ When you have a BSP file (and optionally an AAS)::
 
     quake3 +sv_pure 0 +devmap q3dm7sample
 
+**NOTE:** You need ``+sv_pure`` _before_ the ``+devmap``.
+
 When you've compiled the BSP and AAS into a PK3::
 
     quake3 +map q3dm7sample
@@ -143,5 +145,15 @@ See also: https://wiki.splashdamage.com/index.php/Console_commands
 TODO
 ----
 
+* Try to build packages for the pak files from the files found on the
+  internet (1.32c)?
+
 * Document where to best install the maps directory (the initial Game
-  setup path: ``Documents/radiant-quake3`` vs ``~/.q3a``).
+  setup path: ``~/Documents/q3maps`` vs ``~/.q3a``). Also document how
+  we can setup symlinks for easier coop work.
+
+* Do something with these docs:
+  https://www.tcmapping.com/q3map2-vis-hint/#how_to_see_the_result for HINT
+  https://victorkarp.com/de/quake-3-mapping-tutorials/
+  https://www.cs.rochester.edu/~brown/242/docs/RadiantTut.html
+  https://github.com/id-Software/Quake-III-Arena/blob/dbe4ddb10315479fc00086f08e25d968b4b43c49/q3map/shaders.c#L64-L112

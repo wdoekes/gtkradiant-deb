@@ -96,6 +96,9 @@ BUGS
 FUTURE WORK
 -----------
 
+* See if we want to get some patches merged back into the TTimo repo at
+  https://github.com/TTimo/GtkRadiant
+
 * Add other gamepacks as DEB files. Alter/update/fix README-quake3.rst.
 
 * The German language file in ``po/de.po`` appears to work, assuming you
@@ -104,6 +107,9 @@ FUTURE WORK
   throws some warnings, and (worse) the application starts with odd
   looking color schemes. (If we're working on this, we may want to see
   if we can regenerate ``radiant.pot`` automatically too.)
+
+* Decide if we want to rename the binary from ``radiant.bin`` to
+  ``radiant`` or ``gtkradiant``.
 
 * Order of paths checked (not a bug, but a listing)::
 
@@ -125,19 +131,3 @@ FUTURE WORK
     /usr/share/gtkradiant/base/{scripts,sprites,textures}
     ~/.q3a/baseq3/{scripts,sprites,textures}
     ~/Documents/q3maps/baseq3/{scripts,sprites,textures}
-
-
-TODO
-----
-
-* Document where to best install the maps directory (the initial Game
-  setup path: ``Documents/radiant-quake3`` vs ``~/.q3a``).
-* Rename ``radiant.bin`` to ``radiant``? or ``gtkradiant``?
-* Document q3-make-bsp stuff.
-* Remove XXX/FIXMEs here.
-* Try to get some patches merged back into TTimo repo.
-* https://www.tcmapping.com/q3map2-vis-hint/#how_to_see_the_result for HINT
-* https://victorkarp.com/de/quake-3-mapping-tutorials/
-* https://www.cs.rochester.edu/~brown/242/docs/RadiantTut.html
-* Shader flags from the horse's mouth:
-  https://github.com/id-Software/Quake-III-Arena/blob/dbe4ddb10315479fc00086f08e25d968b4b43c49/q3map/shaders.c#L64-L112
