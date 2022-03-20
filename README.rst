@@ -69,6 +69,15 @@ See `<README-quake3.rst>`_ for Quake3 specific setup.
 BUGS
 ----
 
+* We should look at netradiant and see if that works flawlessly with our
+  Q3 maps. Apparently it has git-save-support, like we also added
+  `<patches/radiant-load-map-in-saved-order.patch>`_ and
+  `<patches/radiant-no-move-map-symlink.patch>`_. See
+  `<https://netradiant.gitlab.io/>`_ and
+  `<https://netradiant.gitlab.io/post/2018-10-03-denumberized-maps/>`_.
+  Official source: https://gitlab.com/xonotic/netradiant -- see also
+  https://github.com/xonotic/xonotic/wiki/Mapping
+
 * These errors when clicking caulkify::
 
     BobToolz::ERROR->Failed To Load Exclusion List: /usr/lib/x86_64-linux-gnu/gtkradiant/modules/bt/bt-el1.txt
