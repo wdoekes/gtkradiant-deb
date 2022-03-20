@@ -1,0 +1,16 @@
+Description: remove wall-of-warnings from gtk2/glib2
+ For example these:
+ /usr/include/gtk-2.0/gtk/gtktooltips.h:73:12: warning: ‘GTimeVal’ is deprecated: Use 'GDateTime' instead [-Wdeprecated-declarations]
+
+diff --git a/config.py b/config.py
+index 87dde5dd..a67cec72 100644
+--- a/config.py
++++ b/config.py
+@@ -236,6 +236,7 @@ class Config:
+         env.ParseConfig( 'xml2-config --libs' )
+         #Need to strip on xml2-config output. It has a stray \n and that completely screws up scons calling g++
+         baseflags = [ '-pipe', '-Wall', '-fmessage-length=0', '-fvisibility=hidden', xml2.strip().split( ' ' ) ]
++        baseflags += [ '-Wno-deprecated-declarations' ]
+ 
+         if ( useGtk ):
+             env.ParseConfig( 'pkg-config gtk+-2.0 --cflags --libs' )

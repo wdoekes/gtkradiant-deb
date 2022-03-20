@@ -3,6 +3,8 @@ bspc-do-not-leave-log-turds-for-nothing.patch
 bspc-fix-warnings.patch
 scons-no-urllib3-in-bionic.patch
 scons-add-debugsyms.patch
+scons-fewer-warnings.patch
+scons-fix-dependency-fail.patch
 radiant-paths.patch
 radiant-no-move-map-symlink.patch
 radiant-load-map-in-saved-order.patch

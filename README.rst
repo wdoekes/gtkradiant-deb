@@ -69,6 +69,11 @@ See `<README-quake3.rst>`_ for Quake3 specific setup.
 BUGS
 ----
 
+* These errors when clicking caulkify::
+
+    BobToolz::ERROR->Failed To Load Exclusion List: /usr/lib/x86_64-linux-gnu/gtkradiant/modules/bt/bt-el1.txt
+    BobToolz::ERROR->Failed To Load Exclusion List: /usr/lib/x86_64-linux-gnu/gtkradiant/modules/bt/bt-el2.txt
+
 * The ``"entitypath"`` in ``default_project.proj`` points to a non-existent
   path, but it is not used either. ``entities.def`` is loaded in
   ``radiant/eclass.cpp``::

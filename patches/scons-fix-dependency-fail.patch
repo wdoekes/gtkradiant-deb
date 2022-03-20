@@ -1,0 +1,15 @@
+Description: if there are undefined symbols, show the ldd output
+
+diff --git a/utils.py b/utils.py
+index 330882a0..2d44bc39 100644
+--- a/utils.py
++++ b/utils.py
+@@ -76,7 +76,7 @@ def CheckUnresolved( source, target, env ):
+ 			except:
+ 				have_undef = 1
+ 	if ( have_undef ):
+-		print( output )
++		print( stdout )
+ 		print( "CheckUnresolved: undefined symbols" )
+ 		os.system('rm %s' % target[0])
+ 		return 1
