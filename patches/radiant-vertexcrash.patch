@@ -1,0 +1,144 @@
+Description: fix crash when edge editing certain faces/brushes
+ This patch avoids a crash when edge editing.
+ It also adds a load-time check that warns about these brushes.
+ See: https://en.wikibooks.org/wiki/GtkRadiant/Edge_%26_Vertex_Editing
+ Minimal sample that crashes when moving the dot near (0,0,0) with E:
+ // entity 0
+ {
+ "classname" "worldspawn"
+ // brush 0
+ {
+ ( -176 -8 0 ) ( -184 488 152 ) ( 184 480 152 ) common/caulk 16 16 0 0.500000 0.500000 0 0 0
+ ( -176 -8 0 ) ( 184 -8 0 ) ( 184 504 152 ) common/caulk 16 16 0 0.500000 0.500000 0 0 0
+ ( 184 504 152 ) ( 184 480 152 ) ( -184 488 152 ) common/caulk 16 16 0 0.500000 0.500000 0 0 0
+ ( -184 504 152 ) ( -184 504 151 ) ( 184 504 151 ) common/caulk 16 0 0 0.500000 0.500000 0 0 0
+ ( -184 488 152 ) ( -176 -8 0 ) ( -184 504 152 ) common/caulk -16 0 0 0.500000 0.500000 0 0 0
+ ( -184 488 152 ) ( -184 504 151 ) ( -184 504 152 ) common/caulk -16 0 0 0.500000 0.500000 0 0 0
+ ( 184 -8 0 ) ( -176 -8 0 ) ( 184 480 152 ) common/caulk 16 16 0 0.500000 0.500000 0 0 0
+ ( 184 504 152 ) ( 184 -8 0 ) ( 184 480 152 ) common/caulk -16 0 0 0.500000 0.500000 0 0 0
+ }
+ }
+
+diff --git a/radiant/map.cpp b/radiant/map.cpp
+index 3696d4e8..aa08ed6d 100644
+--- a/radiant/map.cpp
++++ b/radiant/map.cpp
+@@ -344,7 +344,7 @@ void Map_ImportEntities( CPtrArray *ents, bool bAddSelected = false ){
+ 									( e->brushes.onext != &e->brushes ) );
+ 
+ 		// go through all parsed brushes and build stuff
+-		for ( b = e->brushes.onext; b != &e->brushes; b = b->onext )
++		for ( j = 0, b = e->brushes.onext; b != &e->brushes; b = b->onext, ++j )
+ 		{
+ 			for ( f = b->brush_faces; f != NULL; f = f->next )
+ 			{
+@@ -355,6 +355,11 @@ void Map_ImportEntities( CPtrArray *ents, bool bAddSelected = false ){
+ 			// when brushes are in final state, build the planes and windings
+ 			// NOTE: also converts BP brushes if g_qeglobals.bNeedConvert is true
+ 			Brush_Build( b );
++
++			// check face/vertex sanity
++			if ( !VertexValidateBrush( b ) ) {
++				Sys_FPrintf( SYS_WRN, "WARNING: badly shaped brush %d in entity %d '%s'\n", j, i, e->eclass->name );
++			}
+ 		}
+ 
+ //#define TERRAIN_HACK
+diff --git a/radiant/qe3.h b/radiant/qe3.h
+index 0f26bc59..2e7abf57 100644
+--- a/radiant/qe3.h
++++ b/radiant/qe3.h
+@@ -228,6 +228,7 @@ void CSG_Merge( void );
+ // vertsel.c
+ //
+ 
++bool VertexValidateBrush( brush_t *b ); // check brush validity
+ void SetupVertexSelection( void );
+ void SelectEdgeByRay( vec3_t org, vec3_t dir );
+ void SelectVertexByRay( vec3_t org, vec3_t dir );
+diff --git a/radiant/vertsel.cpp b/radiant/vertsel.cpp
+index 886721ba..14146153 100644
+--- a/radiant/vertsel.cpp
++++ b/radiant/vertsel.cpp
+@@ -62,12 +62,15 @@ int FindEdge( int p1, int p2, face_t *f ){
+ 	g_qeglobals.d_edges[g_qeglobals.d_numedges].p1 = p1;
+ 	g_qeglobals.d_edges[g_qeglobals.d_numedges].p2 = p2;
+ 	g_qeglobals.d_edges[g_qeglobals.d_numedges].f1 = f;
++	g_qeglobals.d_edges[g_qeglobals.d_numedges].f2 = NULL; // don't point to old garbage
+ #ifdef DBG_WNDG
+ 	Sys_Printf( "g_qeglobals.d_edges[%d].f1 = %p\n", g_qeglobals.d_numedges, f );
+ #endif
+ 
+ 	if ( g_qeglobals.d_numedges < MAX_EDGES - 1 ) {
+ 		g_qeglobals.d_numedges++;
++	} else {
++		Sys_FPrintf( SYS_ERR, "WARNING: shape so complicated it has more than %d edges\n", MAX_EDGES);
+ 	}
+ 
+ 	return g_qeglobals.d_numedges - 1;
+@@ -361,6 +364,13 @@ void SelectEdgeByRay( vec3_t org, vec3_t dir ){
+ 	if ( e->f2 == NULL ) {
+ 		Sys_Printf( "e->f1 %p e->f2 == NULL\n",e->f1 );
+ 	}
++#endif
++#if 1 //DBG_WNDG
++	if ( e->f1 == NULL || e->f2 == NULL ) {
++		// don't crash, which we'd do below
++		Sys_FPrintf( SYS_ERR, "ERROR: would crash (f1=%p, f2=%p); skipping face selection\n", e->f1, e->f2 );
++		return;
++	}
+ #endif
+ 	for ( brush_t* b = selected_brushes.next ; b != &selected_brushes ; b = b->next )
+ 	{
+@@ -368,3 +378,51 @@ void SelectEdgeByRay( vec3_t org, vec3_t dir ){
+ 		SelectFaceEdge( b, e->f2, e->p2, e->p1 );
+ 	}
+ }
++
++#if 1 //DBG_WNDG
++void PrintfFace( face_t *f ) {
++	if ( !f ) {
++		Sys_Printf( " face( NULL )" );
++		return;
++	}
++	Sys_Printf( " face( (%d,%d,%d) (%d,%d,%d) (%d,%d,%d) \"%s\" )",
++		f->planepts[0][0], f->planepts[0][1], f->planepts[0][2],
++		f->planepts[1][0], f->planepts[1][1], f->planepts[1][2],
++		f->planepts[2][0], f->planepts[2][1], f->planepts[2][2],
++		f->texdef.GetName() );
++}
++#endif
++
++bool VertexValidateBrush( brush_t *b ) {
++	bool is_good = true;
++#if 1 //DBG_WNDG
++	g_qeglobals.d_numpoints = 0;
++	g_qeglobals.d_numedges = 0;
++
++	if ( b->patchBrush || b->owner->eclass->fixedsize ) {
++		return true; // don't make edge and vertex handles for patchbrushes
++	}
++	for ( face_t *f = b->brush_faces ; f ; f = f->next ) {
++		MakeFace( b,f );
++	}
++	for ( int i = 0; i < g_qeglobals.d_numedges; ++i ) {
++		if ( g_qeglobals.d_edges[i].f1 == NULL || g_qeglobals.d_edges[i].f2 == NULL ) {
++			is_good = false;
++			break;
++		}
++	}
++#ifdef DBG_WNDG
++	if ( !is_good ) {
++		for ( int i = 0; i < g_qeglobals.d_numedges; ++i ) {
++			Sys_Printf( "brush %p edge %d p1 %d p2 %d f1 %p f2 %p", b, i,
++				g_qeglobals.d_edges[i].p1, g_qeglobals.d_edges[i].p2,
++				g_qeglobals.d_edges[i].f1, g_qeglobals.d_edges[i].f2 );
++			PrintfFace( g_qeglobals.d_edges[i].f1 );
++			PrintfFace( g_qeglobals.d_edges[i].f2 );
++			Sys_Printf( "\n" );
++		}
++	}
++#endif
++#endif
++	return is_good;
++}
