@@ -23,12 +23,12 @@ DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 override_dh_auto_build:
 	SCONSFLAGS=$(SCONSFLAGS) $(SCONS)
-	$(MAKE) -C bspc
+	$(MAKE) -C tools/bspc
 
 override_dh_auto_install:
 	# Install into ./install/
 	SCONSFLAGS=$(SCONSFLAGS) $(SCONS) install
-	# bspc is "installed" in ./bspc/
+	# bspc is "installed" in ./tools/bspc/
 
 	# Create language files from po/*.po into ./install/locale/
 	for pofile in po/*.po; do \

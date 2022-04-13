@@ -60,15 +60,15 @@ WORKDIR /build/GtkRadiant
 # (Note that RADIANT_MAJOR_VERSION and RADIANT_MINOR_VERSION in version.h
 # refer to MINOR and MICRO version respectively, while MAJOR is 1.)
 RUN if ! test -f include/version.h; then \
-        grep -xF "$upversion" include/version.default; \
+        grep -xF "${upversion%%+*}" include/version.default; \
     else \
         # BUG: in 1.6.6 version.h is committed and include/version.default
         # and include/version.default is NOT updated.
-        grep -xF '#define RADIANT_VERSION "'$upversion'"' include/version.h; \
+        grep -xF '#define RADIANT_VERSION "'${upversion%%+*}'"' include/version.h; \
     fi
-# Update version sources to include git version
+# Update version sources to include our version
 RUN echo 'Custom build by wdoekes' > include/aboutmsg.default
-RUN echo "$upversion+$(git log -1 --date='format:%Y%m%d' --format='%cd.%h')" > include/version.default
+RUN echo "$upversion" > include/version.default
 RUN python2 makeversion.py 
 
 # Skip updating GIT/SVN repo's *again*, because we do so in
@@ -77,19 +77,25 @@ RUN if test -f config.py; then \
         sed -i -e "s/cmd = [[] \('git', 'pull'\|'svn', 'update'\)/cmd = [ 'echo', 'skipping:', \1/" config.py; \
     fi
 
-# Check that bspc has checksum patch:
-RUN git -C bspc branch --contains 8aa16e1986a1ac93f5992e144552eccab27035c1 | grep -xF '* master'
+# Fix (TTimo) bspc path, clean it, make SOURCE_VERSION, check for checksum patch:
+RUN cd tools/bspc && \
+    git clean -dfx && \
+    find . -name '.git' | \
+      xargs --no-run-if-empty -IX env DIR='X' sh -c 'DIR=${DIR%/.git} && git -C "$DIR" show >"$DIR/SOURCE_VERSION"' && \
+    git branch --contains 8aa16e1986a1ac93f5992e144552eccab27035c1 | grep -xF '* master'
 
-# Make source tars:
-RUN git -C bspc clean -dfx
-# ^-- don't clean parent, it would remove our .git and .svn subdirs,
-#     unless we git init in install/installs
-RUN find . -type d -name '.git' | \
-    xargs -IX env DIR='X' sh -c 'DIR=${DIR%/.git} && git -C "$DIR" show >"$DIR/SOURCE_VERSION"'
-RUN find . -type d -name '.svn' | \
-    xargs -IX env DIR='X' sh -c 'DIR=${DIR%/.svn} && svn info "$DIR" >"$DIR/SOURCE_VERSION"'
-# (reproducible tar, with 1970 timestamps, sorted, etc..)
-RUN cd .. && \
+# Make clean, reproducible tar, with 1970 timestamps, sorted, etc..
+RUN git clean -dxf \
+      --exclude=debian/ \
+      --exclude=install/installs/ \
+      --exclude=tools/bspc/ && \
+    # Add versions to files found in ./install/installs.
+    find . -type d -name '.git' | \
+      xargs -IX env DIR='X' sh -c 'DIR=${DIR%/.git} && git -C "$DIR" show >"$DIR/SOURCE_VERSION"' && \
+    find . -type d -name '.svn' | \
+      xargs -IX env DIR='X' sh -c 'DIR=${DIR%/.svn} && svn info "$DIR" >"$DIR/SOURCE_VERSION"' && \
+    # (reproducible tar, with 1970 timestamps, sorted, etc..)
+    cd .. && \
     find GtkRadiant '!' '(' \
       -type d -o -name .gitignore -o -name .gitmodules -o -path '*/.git/*' -o -path '*/.svn/*' \
       -o -name '*.srctrl*' -o -name '*.rej' -o -name '*.orig' -o -name '*.o' -o -name '*.pyc' ')' \

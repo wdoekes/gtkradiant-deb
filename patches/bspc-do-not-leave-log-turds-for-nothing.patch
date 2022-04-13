@@ -3,8 +3,8 @@ Description: for help and unknown commands, do not write bspc.log
 
 diff --git a/bspc.c b/bspc.c
 index b1a0a12..0012f8f 100644
---- a/bspc/bspc.c
-+++ b/bspc/bspc.c
+--- a/tools/bspc/bspc.c
++++ b/tools/bspc/bspc.c
 @@ -280,8 +280,7 @@ int main (int argc, char **argv)
  
  	start_time = I_FloatTime();
@@ -49,8 +49,8 @@ index b1a0a12..0012f8f 100644
  
 diff --git a/l_log.c b/l_log.c
 index 6a69c2b..0f0fc32 100644
---- a/bspc/l_log.c
-+++ b/bspc/l_log.c
+--- a/tools/bspc/l_log.c
++++ b/tools/bspc/l_log.c
 @@ -37,6 +37,8 @@ typedef struct logfile_s
  
  logfile_t logfile;
@@ -112,8 +112,8 @@ index 6a69c2b..0f0fc32 100644
  	va_end(ap);
 diff --git a/l_log.h b/l_log.h
 index b9f1be4..7ff9a46 100644
---- a/bspc/l_log.h
-+++ b/bspc/l_log.h
+--- a/tools/bspc/l_log.h
++++ b/tools/bspc/l_log.h
 @@ -36,6 +36,8 @@ void Log_WriteTimeStamped(char *fmt, ...);
  FILE *Log_FileStruct(void);
  //flush log file

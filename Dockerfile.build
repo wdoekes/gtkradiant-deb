@@ -32,10 +32,6 @@ _shortver=$osdistshort$oscodenum
 sed -i -e "1s/+\\(deb\\|ubu\\)[0-9.]*) [a-z]\\+;/+$_shortver) $oscodename;/" \
     changelog
 
-# Docker disallows certain tokens in versions.
-dockversion=$(echo build-${upname}-${upversion}-${debversion}-${oscodename} |
-    sed -e 's/[^0-9A-Za-z_.-]/_/g')
-
 
 git_pull_or_clone() {
     if test -d "$1"; then
@@ -56,12 +52,13 @@ svn_pull_or_clone() {
 }
 
 # Ensure we have GtkRadiant.
-# You'll need to clone this:
 git_pull_or_clone GtkRadiant https://github.com/TTimo/GtkRadiant
+# Improve versioning, based on the git version.
+version_suffix=$(git -C GtkRadiant log --date=short --format='%cd' |
+                 tr -d '-' | uniq -c | head -n1 | awk '{print $2 "+" $1}')
 
 # Add bspc to repo.
-git_pull_or_clone GtkRadiant/bspc https://github.com/TTimo/bspc.git
-# FIXME: fix ... bspc md5 calculation !!
+git_pull_or_clone GtkRadiant/tools/bspc https://github.com/TTimo/bspc.git
 
 # Ensure we have all game pak files.
 for svnpak in \
@@ -88,6 +85,12 @@ for svnpak in \
     svn_pull_or_clone GtkRadiant/install/installs/$svnpak $svnurl
 done
 
+# Update upversion adding the suffix in there.
+upversion="$upversion+$version_suffix"
+
+# Docker disallows certain tokens in versions.
+dockversion=$(echo build-${upname}-${upversion}-${debversion}-${oscodename} |
+    sed -e 's/[^0-9A-Za-z_.-]/_/g')
 
 # Will build files.
 if ! docker build \

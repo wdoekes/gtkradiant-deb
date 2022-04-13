@@ -4,8 +4,8 @@ Description: do not strip binary in make step and add debug symbols
 
 diff --git a/Makefile b/Makefile
 index f5fe36f..1848c4e 100644
---- a/bspc/Makefile
-+++ b/bspc/Makefile
+--- a/tools/bspc/Makefile
++++ b/tools/bspc/Makefile
 @@ -5,7 +5,7 @@ CFLAGS=\
  	-fno-common \
  	-I. -Ideps -Wall

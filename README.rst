@@ -10,14 +10,14 @@ subdirectory of) ``Dockerfile.out/``.
 
 The files may look similar to these::
 
-    -     15,101  gtkradiant_1.6.6-0wjd0+ubu20.04_amd64.buildinfo
-    -      2,763  gtkradiant_1.6.6-0wjd0+ubu20.04_amd64.changes
-    -  2,454,016  gtkradiant_1.6.6-0wjd0+ubu20.04_amd64.deb
-    -      7,848  gtkradiant_1.6.6-0wjd0+ubu20.04.debian.tar.xz
-    -      1,249  gtkradiant_1.6.6-0wjd0+ubu20.04.dsc
-    - 48,235,829  gtkradiant_1.6.6.orig.tar.gz
-    - 11,234,780  gtkradiant-dbgsym_1.6.6-0wjd0+ubu20.04_amd64.ddeb
-    -  2,017,400  gtkradiant-game-q3pack_1.6.6-0wjd0+ubu20.04_all.deb
+    -     15,234  gtkradiant_1.6.6+20220124+2-0wjd1+ubu20.04_amd64.buildinfo
+    -      3,044  gtkradiant_1.6.6+20220124+2-0wjd1+ubu20.04_amd64.changes
+    -  2,463,052  gtkradiant_1.6.6+20220124+2-0wjd1+ubu20.04_amd64.deb
+    -     17,900  gtkradiant_1.6.6+20220124+2-0wjd1+ubu20.04.debian.tar.xz
+    -      1,298  gtkradiant_1.6.6+20220124+2-0wjd1+ubu20.04.dsc
+    - 47,677,388  gtkradiant_1.6.6+20220124+2.orig.tar.gz
+    - 12,048,528  gtkradiant-dbgsym_1.6.6+20220124+2-0wjd1+ubu20.04_amd64.ddeb
+    -  2,018,416  gtkradiant-game-quake3_1.6.6+20220124+2-0wjd1+ubu20.04_all.deb
 
 The ``gtkradiant*.orig.tar.gz`` contains source files from multiple
 repositories. With ``SOURCE_VERSION`` files in the directories,
@@ -48,14 +48,14 @@ Starting should be a matter of running ``gtkradiant``::
     /usr/bin/q3map2
     /usr/bin/q3map2_urt
 
-Game configuration will be stored in ``~/.radiant/1.6.6+20220124.97d3d879``::
+Game configuration will be stored in ``~/.radiant/1.6.6+20220124+2``::
 
-    $ find ~/.radiant/1.6.6+20220124.97d3d879/ -type f | sort
-    ~/.radiant/1.6.6+20220124.97d3d879/games/q3.game
-    ~/.radiant/1.6.6+20220124.97d3d879/global.pref
-    ~/.radiant/1.6.6+20220124.97d3d879/prtview.ini
-    ~/.radiant/1.6.6+20220124.97d3d879/q3.game/local.pref
-    ~/.radiant/1.6.6+20220124.97d3d879/radiant.log
+    $ find ~/.radiant/1.6.6+20220124+2/ -type f | sort
+    ~/.radiant/1.6.6+20220124+2/games/q3.game
+    ~/.radiant/1.6.6+20220124+2/global.pref
+    ~/.radiant/1.6.6+20220124+2/prtview.ini
+    ~/.radiant/1.6.6+20220124+2/q3.game/local.pref
+    ~/.radiant/1.6.6+20220124+2/radiant.log
 
 You may need to copy these configuration files when switching versions.
 
@@ -125,7 +125,7 @@ FUTURE WORK
 * Order of paths checked (not a bug, but a listing)::
 
     (look for config)
-    ~/.radiant/1.6.6+20220124.97d3d879/games (config)
+    ~/.radiant/1.6.6+20220124+2/games (config)
 
     (look for modules)
     /usr/lib/x86_64-linux-gnu/gtkradiant/modules/ (needed)

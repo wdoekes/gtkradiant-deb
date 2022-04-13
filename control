@@ -1,7 +1,6 @@
 Source: gtkradiant
 Priority: optional
 Maintainer: Walter Doekes <wjdoekes+gtkradiant@osso.nl>
-# "How to build" for 20.04 (from upstream README), slightly adapted.
 Build-Depends:
  debhelper (>= 9),
  python2 | python (<< 3),
@@ -27,6 +26,7 @@ Depends:
  ${shlibs:Depends},
  ${misc:Depends}
 Suggests: gtkradiant-game-quake3
+Conflicts: netradiant
 Description: gtkradiant contains (TTimo) GtkRadiant and tools
  GtkRadiant is the open source cross platform level editor for idTech
  games. This package contains the radiant editor, q3map2 compilers and

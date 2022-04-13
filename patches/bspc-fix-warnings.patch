@@ -2,8 +2,8 @@ Description: enable -Werror=all and fix related problems
 
 diff --git a/Makefile b/Makefile
 index f5fe36f..3fa1e12 100644
---- a/bspc/Makefile
-+++ b/bspc/Makefile
+--- a/tools/bspc/Makefile
++++ b/tools/bspc/Makefile
 @@ -3,7 +3,7 @@ CFLAGS=\
  	-Dstricmp=strcasecmp -DCom_Memcpy=memcpy -DCom_Memset=memset \
  	-DMAC_STATIC= -DQDECL= -DLINUX -DBSPC -D_FORTIFY_SOURCE=2 \
@@ -15,8 +15,8 @@ index f5fe36f..3fa1e12 100644
  DEBUG_CFLAGS=-g -O0 -ffast-math
 diff --git a/aas_facemerging.c b/aas_facemerging.c
 index b6ac76d..4a0c2f0 100644
---- a/bspc/aas_facemerging.c
-+++ b/bspc/aas_facemerging.c
+--- a/tools/bspc/aas_facemerging.c
++++ b/tools/bspc/aas_facemerging.c
 @@ -217,7 +217,7 @@ int AAS_CanMergePlaneFaces(tmp_area_t *tmparea, int planenum)
  {
  	tmp_area_t *frontarea, *backarea;
@@ -28,8 +28,8 @@ index b6ac76d..4a0c2f0 100644
  	merge = false;
 diff --git a/aas_gsubdiv.c b/aas_gsubdiv.c
 index d3cf222..35070f9 100644
---- a/bspc/aas_gsubdiv.c
-+++ b/bspc/aas_gsubdiv.c
+--- a/tools/bspc/aas_gsubdiv.c
++++ b/tools/bspc/aas_gsubdiv.c
 @@ -528,7 +528,7 @@ tmp_node_t *AAS_LadderSubdivideArea_r(tmp_node_t *tmpnode)
  	tmp_area_t *tmparea, *frontarea, *backarea;
  	tmp_face_t *face1;
@@ -41,8 +41,8 @@ index d3cf222..35070f9 100644
  
 diff --git a/be_aas_bspc.c b/be_aas_bspc.c
 index 5743fe7..34f680d 100644
---- a/bspc/be_aas_bspc.c
-+++ b/bspc/be_aas_bspc.c
+--- a/tools/bspc/be_aas_bspc.c
++++ b/tools/bspc/be_aas_bspc.c
 @@ -213,15 +213,6 @@ void Com_DPrintf(char *fmt, ...)
  } //end of the function Com_DPrintf
  //===========================================================================
@@ -61,8 +61,8 @@ index 5743fe7..34f680d 100644
  // Changes Globals:		-
 diff --git a/bspc.c b/bspc.c
 index b1a0a12..36b92d2 100644
---- a/bspc/bspc.c
-+++ b/bspc/bspc.c
+--- a/tools/bspc/bspc.c
++++ b/tools/bspc/bspc.c
 @@ -200,12 +200,12 @@ void CreateAASFilesForAllBSPFiles(char *quakepath)
  			//
  			for (qf = bspfiles; qf; qf = qf->next)
@@ -80,8 +80,8 @@ index b1a0a12..36b92d2 100644
  						Log_Print("found %s\n", buf);
 diff --git a/deps/botlib/be_aas_reach.c b/deps/botlib/be_aas_reach.c
 index 5dfa020..7b30dc0 100644
---- a/bspc/deps/botlib/be_aas_reach.c
-+++ b/bspc/deps/botlib/be_aas_reach.c
+--- a/tools/bspc/deps/botlib/be_aas_reach.c
++++ b/tools/bspc/deps/botlib/be_aas_reach.c
 @@ -1065,8 +1065,12 @@ int AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge(int area1num, int area2
  	float length, ground_bestlength, water_bestlength, ground_bestdist, water_bestdist;
  	vec3_t v1, v2, v3, v4, tmpv, p1area1, p1area2, p2area1, p2area2;
@@ -109,8 +109,8 @@ index 5dfa020..7b30dc0 100644
  	aas_plane_t *plane1, *plane2;
 diff --git a/deps/botlib/l_precomp.c b/deps/botlib/l_precomp.c
 index 04c17db..756a4f4 100644
---- a/bspc/deps/botlib/l_precomp.c
-+++ b/bspc/deps/botlib/l_precomp.c
+--- a/tools/bspc/deps/botlib/l_precomp.c
++++ b/tools/bspc/deps/botlib/l_precomp.c
 @@ -708,7 +708,7 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
  										token_t **firsttoken, token_t **lasttoken)
  {
@@ -166,8 +166,8 @@ index 04c17db..756a4f4 100644
  	source->defines = NULL;
 diff --git a/deps/botlib/l_script.c b/deps/botlib/l_script.c
 index d4da773..30ef725 100644
---- a/bspc/deps/botlib/l_script.c
-+++ b/bspc/deps/botlib/l_script.c
+--- a/tools/bspc/deps/botlib/l_script.c
++++ b/tools/bspc/deps/botlib/l_script.c
 @@ -1371,7 +1371,7 @@ script_t *LoadScriptFile(const char *filename)
  	fclose(fp);
  #endif
@@ -179,8 +179,8 @@ index d4da773..30ef725 100644
  } //end of the function LoadScriptFile
 diff --git a/deps/qcommon/cm_patch.c b/deps/qcommon/cm_patch.c
 index 75ad7f8..79b37ee 100644
---- a/bspc/deps/qcommon/cm_patch.c
-+++ b/bspc/deps/qcommon/cm_patch.c
+--- a/tools/bspc/deps/qcommon/cm_patch.c
++++ b/tools/bspc/deps/qcommon/cm_patch.c
 @@ -1379,7 +1379,7 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
  	float offset, enterFrac, leaveFrac, t;
  	patchPlane_t *planes;
@@ -192,8 +192,8 @@ index 75ad7f8..79b37ee 100644
  	static cvar_t *cv;
 diff --git a/deps/qcommon/cm_trace.c b/deps/qcommon/cm_trace.c
 index 9e8abec..dc595b0 100644
---- a/bspc/deps/qcommon/cm_trace.c
-+++ b/bspc/deps/qcommon/cm_trace.c
+--- a/tools/bspc/deps/qcommon/cm_trace.c
++++ b/tools/bspc/deps/qcommon/cm_trace.c
 @@ -132,16 +132,28 @@ SquareRootFloat
  */
  float SquareRootFloat(float number) {
@@ -226,8 +226,8 @@ index 9e8abec..dc595b0 100644
  
 diff --git a/deps/qcommon/unzip.c b/deps/qcommon/unzip.c
 index e298a84..97fac46 100644
---- a/bspc/deps/qcommon/unzip.c
-+++ b/bspc/deps/qcommon/unzip.c
+--- a/tools/bspc/deps/qcommon/unzip.c
++++ b/tools/bspc/deps/qcommon/unzip.c
 @@ -1412,8 +1412,8 @@ extern int unzClose (unzFile file)
  		return UNZ_PARAMERROR;
  	s=(unz_s*)file;
@@ -288,8 +288,8 @@ index e298a84..97fac46 100644
    in the documentation of your product. If for some reason you cannot
 diff --git a/l_bsp_hl.c b/l_bsp_hl.c
 index 7677ab6..fceec8c 100644
---- a/bspc/l_bsp_hl.c
-+++ b/bspc/l_bsp_hl.c
+--- a/tools/bspc/l_bsp_hl.c
++++ b/tools/bspc/l_bsp_hl.c
 @@ -692,17 +692,17 @@ void HL_PrintBSPFileSizes(void)
  	qprintf("Object names  Objects/Maxobjs  Memory / Maxmem  Fullness\n" );
  	qprintf("------------  ---------------  ---------------  --------\n" );
@@ -321,8 +321,8 @@ index 7677ab6..fceec8c 100644
  	totalmemory += GlobUsage( "lightdata",		hl_lightdatasize,	sizeof(hl_dlightdata) );
 diff --git a/l_bsp_q2.c b/l_bsp_q2.c
 index 445ff30..5e1dbe9 100644
---- a/bspc/l_bsp_q2.c
-+++ b/bspc/l_bsp_q2.c
+--- a/tools/bspc/l_bsp_q2.c
++++ b/tools/bspc/l_bsp_q2.c
 @@ -1100,7 +1100,7 @@ void Q2_UnparseEntities (void)
  {
  	char	*buf, *end;
@@ -334,8 +334,8 @@ index 445ff30..5e1dbe9 100644
  
 diff --git a/l_bsp_sin.c b/l_bsp_sin.c
 index 154551f..c56d361 100644
---- a/bspc/l_bsp_sin.c
-+++ b/bspc/l_bsp_sin.c
+--- a/tools/bspc/l_bsp_sin.c
++++ b/tools/bspc/l_bsp_sin.c
 @@ -1087,7 +1087,7 @@ void Sin_UnparseEntities (void)
  {
  	char	*buf, *end;
@@ -347,8 +347,8 @@ index 154551f..c56d361 100644
  
 diff --git a/l_cmd.c b/l_cmd.c
 index 3a8ab63..3699198 100644
---- a/bspc/l_cmd.c
-+++ b/bspc/l_cmd.c
+--- a/tools/bspc/l_cmd.c
++++ b/tools/bspc/l_cmd.c
 @@ -332,7 +332,7 @@ char *ExpandPath (char *path)
  char *ExpandPathAndArchive (char *path)
  {
@@ -360,8 +360,8 @@ index 3a8ab63..3699198 100644
  
 diff --git a/l_mem.c b/l_mem.c
 index 2636b68..06ad594 100644
---- a/bspc/l_mem.c
-+++ b/bspc/l_mem.c
+--- a/tools/bspc/l_mem.c
++++ b/tools/bspc/l_mem.c
 @@ -410,7 +410,7 @@ void *Hunk_Alloc(int size)
  {
  	memhunk_t *h;
@@ -373,8 +373,8 @@ index 2636b68..06ad594 100644
  	h->ptr = (char *) h + sizeof(memhunk_t);
 diff --git a/leakfile.c b/leakfile.c
 index 924b34d..0673cdd 100644
---- a/bspc/leakfile.c
-+++ b/bspc/leakfile.c
+--- a/tools/bspc/leakfile.c
++++ b/tools/bspc/leakfile.c
 @@ -57,7 +57,7 @@ void LeakFile (tree_t *tree)
  	//
  	// write the points to the file
@@ -397,8 +397,8 @@ index 924b34d..0673cdd 100644
  		// find the best portal exit
 diff --git a/portals.c b/portals.c
 index cde4f60..4039dd7 100644
---- a/bspc/portals.c
-+++ b/bspc/portals.c
+--- a/tools/bspc/portals.c
++++ b/tools/bspc/portals.c
 @@ -431,6 +431,7 @@ void MakeNodePortal (node_t *node)
  		else
  		{
@@ -421,8 +421,8 @@ index cde4f60..4039dd7 100644
  		other_node = p->nodes[!side];
 diff --git a/textures.c b/textures.c
 index 76cc0fd..ca7e784 100644
---- a/bspc/textures.c
-+++ b/bspc/textures.c
+--- a/tools/bspc/textures.c
++++ b/tools/bspc/textures.c
 @@ -50,7 +50,7 @@ int FindMiptex (char *name)
  	strcpy (textureref[i].name, name);
  
