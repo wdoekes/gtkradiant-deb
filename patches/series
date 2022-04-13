@@ -5,6 +5,7 @@ scons-no-urllib3-in-bionic.patch
 scons-add-debugsyms.patch
 scons-fewer-warnings.patch
 scons-fix-dependency-fail.patch
+radiant-binary-called-gtkradiant.patch
 radiant-paths.patch
 radiant-no-move-map-symlink.patch
 radiant-load-map-in-saved-order.patch

@@ -1,4 +1,4 @@
-install/radiant.bin usr/bin/
+install/gtkradiant usr/bin/
 debian/gtkradiant.desktop usr/share/applications/
 bspc/bspc usr/bin/
 install/q3data usr/bin/

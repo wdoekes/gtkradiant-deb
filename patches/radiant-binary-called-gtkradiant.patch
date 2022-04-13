@@ -1,0 +1,25 @@
+diff --git a/SConscript.radiant b/SConscript.radiant
+index 66853d39..53ad966c 100644
+--- a/SConscript.radiant
++++ b/SConscript.radiant
+@@ -16,6 +16,6 @@ if ( platform.system() != 'FreeBSD' ):
+ 
+ proj = utils.vcxproj( os.path.join( GetLaunchDir(), 'radiant/radiant.vcxproj' ) )
+ 
+-radiant = env.Program( 'radiant.bin', lib_objects + [ os.path.join( 'radiant', i ) for i in proj.getSourceFiles() ] )
++radiant = env.Program( 'gtkradiant', lib_objects + [ os.path.join( 'radiant', i ) for i in proj.getSourceFiles() ] )
+ 
+ Return( 'radiant' )
+diff --git a/config.py b/config.py
+index 87dde5dd..83c88a3e 100644
+--- a/config.py
++++ b/config.py
+@@ -103,7 +103,7 @@ class Config:
+                 lib_objects += SConscript( os.path.join( build_dir, 'SConscript.lib' ) )
+             Export( 'lib_objects' )
+             radiant = SConscript( os.path.join( build_dir, 'SConscript.radiant' ) )
+-            Default( InstallAs( os.path.join( self.install_directory, 'radiant.bin' ), radiant ) )
++            Default( InstallAs( os.path.join( self.install_directory, 'gtkradiant' ), radiant ) )
+ 
+             # PIC versions of the libs for the modules
+             shlib_objects_extra = {}

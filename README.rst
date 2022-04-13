@@ -25,7 +25,7 @@ recording the exact versions.
 
 The ``gtkradiant*.deb`` holds files in::
 
-    - /usr/bin (radiant.bin, q3map2, ...)
+    - /usr/bin (gtkradiant, q3map2, ...)
     - /usr/lib/x86_64-linux-gnu/gtkradiant (plugins/modules)
     - /usr/share/doc/gtkradiant (docs)
     - /usr/share/gtkradiant (arch independent data files, images)
@@ -39,14 +39,14 @@ The ``gtkradiant-game-quake3*.deb`` holds files in::
 Running GtkRadiant
 ------------------
 
-Starting should be a matter of running ``radiant.bin``::
+Starting should be a matter of running ``gtkradiant``::
 
     $ dpkg -L gtkradiant | grep /usr/bin/
     /usr/bin/bspc
+    /usr/bin/gtkradiant
     /usr/bin/q3data
     /usr/bin/q3map2
     /usr/bin/q3map2_urt
-    /usr/bin/radiant.bin
 
 Game configuration will be stored in ``~/.radiant/1.6.6+20220124.97d3d879``::
 
@@ -117,13 +117,10 @@ FUTURE WORK
 
 * The German language file in ``po/de.po`` appears to work, assuming you
   have generated the German locale (``locale-gen de_DE.UTF-8``) and
-  running with ``LC_ALL=de_DE.UTF-8 radiant.bin``. However, ``msgfmt``
+  running with ``LC_ALL=de_DE.UTF-8 gtkradiant``. However, ``msgfmt``
   throws some warnings, and (worse) the application starts with odd
   looking color schemes. (If we're working on this, we may want to see
   if we can regenerate ``radiant.pot`` automatically too.)
-
-* Decide if we want to rename the binary from ``radiant.bin`` to
-  ``radiant`` or ``gtkradiant``.
 
 * Order of paths checked (not a bug, but a listing)::
 
