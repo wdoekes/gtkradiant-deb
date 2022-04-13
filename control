@@ -26,17 +26,20 @@ Pre-Depends: ${misc:Pre-Depends}
 Depends:
  ${shlibs:Depends},
  ${misc:Depends}
+Suggests: gtkradiant-game-quake3
 Description: gtkradiant contains (TTimo) GtkRadiant and tools
  GtkRadiant is the open source cross platform level editor for idTech
  games. This package contains the radiant editor, q3map2 compilers and
  bspc bot file builder.
 
-Package: gtkradiant-game-q3pack
+Package: gtkradiant-game-quake3
 Architecture: all
 Pre-Depends: ${misc:Pre-Depends}
 Depends:
- ${shlibs:Depends},
+# There are no shared libs here:
+# #${shlibs:Depends},
  ${misc:Depends}
+Suggests: gtkradiant
 Description: gtkradiant Q3Pack contains the Quake III Arena game files
  GtkRadiant is the open source cross platform level editor for idTech
  games.

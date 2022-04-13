@@ -31,7 +31,7 @@ The ``gtkradiant*.deb`` holds files in::
     - /usr/share/gtkradiant (arch independent data files, images)
     - /usr/share/locale (translations)
 
-The ``gtkradiant-game-q3pack*.deb`` holds files in::
+The ``gtkradiant-game-quake3*.deb`` holds files in::
 
     - /usr/share/gtkradiant/installs/Q3Pack/game
 
