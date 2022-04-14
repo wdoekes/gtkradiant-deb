@@ -10,3 +10,4 @@ radiant-paths.patch
 radiant-no-move-map-symlink.patch
 radiant-load-map-in-saved-order.patch
 radiant-vertexcrash.patch
+radiant-fix-lc-all.patch

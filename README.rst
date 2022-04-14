@@ -123,13 +123,6 @@ BUGS/TODO
   I suspect "entitypath" could be removed altogether as it only appears
   to be referenced in ``tools/quake2/extra/qe4/qe3.c``.
 
-* The German language file in ``po/de.po`` appears to work, assuming you
-  have generated the German locale (``locale-gen de_DE.UTF-8``) and
-  running with ``LC_ALL=de_DE.UTF-8 gtkradiant``. However, ``msgfmt``
-  throws some warnings, and (worse) the application starts with odd
-  looking color schemes. (If we're working on this, we may want to see
-  if we can regenerate ``radiant.pot`` automatically too.)
-
 * Order of paths checked (not a bug, but a listing)::
 
     (look for config)

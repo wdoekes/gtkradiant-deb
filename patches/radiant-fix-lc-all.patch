@@ -1,0 +1,23 @@
+Description: fix so LC_ALL=de_DE.UTF-8 does not introduce comma's in files
+ We don't want LC_ALL touching LC_NUMERIC. (It show interesting color
+ themes when you start GtkRadiant with e.g. the German language.)
+
+diff --git a/radiant/main.cpp b/radiant/main.cpp
+index 33e1e4c5..c9574bc3 100644
+--- a/radiant/main.cpp
++++ b/radiant/main.cpp
+@@ -467,6 +467,14 @@ int mainRadiant( int argc, char* argv[] ) {
+ 	   that way.
+ 	 */
+ 	putenv( (char *)"LC_NUMERIC=C" );
++	// LC_ALL overrides *all* LC_* variables. That breaks the above fix.
++	// Replace LC_ALL with LC_MESSAGES if you want i18n.
++	if (getenv("LC_ALL") && strlen(getenv("LC_ALL"))) {
++	    char tmp[200];
++	    snprintf(tmp, sizeof(tmp), "LC_MESSAGES=%s", getenv("LC_ALL"));
++	    putenv( tmp );
++	    unsetenv( "LC_ALL" );
++	}
+ 
+ 	// Use the same environment variable for resolving libGL as libgtkglext does.
+ 	libgl = getenv("GDK_GL_LIBGL_PATH");
