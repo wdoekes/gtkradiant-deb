@@ -95,11 +95,6 @@ BUGS/TODO
 * See if we want to get some patches merged back into the TTimo repo at
   https://github.com/TTimo/GtkRadiant
 
-* These errors when clicking caulkify::
-
-    BobToolz::ERROR->Failed To Load Exclusion List: /usr/lib/x86_64-linux-gnu/gtkradiant/modules/bt/bt-el1.txt
-    BobToolz::ERROR->Failed To Load Exclusion List: /usr/lib/x86_64-linux-gnu/gtkradiant/modules/bt/bt-el2.txt
-
 * Add other gamepacks as DEB files. Alter/update/fix README-quake3.rst.
 
 * Maybe fix (re)generating ``radiant.pot`` automatically, and check what

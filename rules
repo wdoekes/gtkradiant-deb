@@ -28,6 +28,7 @@ override_dh_auto_build:
 override_dh_auto_install:
 	# Install into ./install/
 	SCONSFLAGS=$(SCONSFLAGS) $(SCONS) install
+	cp -a contrib/bobtoolz/bt install/modules/  # missing in SConscript.module
 	# bspc is "installed" in ./tools/bspc/
 
 	# Create language files from po/*.po into ./install/locale/

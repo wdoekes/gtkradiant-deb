@@ -9,3 +9,6 @@ install/bitmaps usr/share/gtkradiant/
 install/locale usr/share/
 install/modules/bitmaps usr/share/gtkradiant/modules/
 install/modules/*.so usr/lib/x86_64-linux-gnu/gtkradiant/modules/
+# These are actually data files, but patching bobtoolz to look
+# elsewhere is tricky:
+install/modules/bt usr/lib/x86_64-linux-gnu/gtkradiant/modules/
