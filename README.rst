@@ -1,9 +1,32 @@
 wdoekes build of (TTimo) GtkRadiant for Ubuntu/Debian
 =====================================================
 
+Radiant is the open source cross platform level editor for idTech games
+like Quake III Arena.
+
+There are at least three competing versions out there:
+
+- `GtkRadiant <https://github.com/wdoekes/gtkradiant-deb>`_ 1.6 (a
+  continuation of the original 1.4, maintained by TTimo);
+- `NetRadiant <https://github.com/wdoekes/netradiant-deb>`_ 1.5 (a
+  continuation of the original 1.5, maintained by Xonotic);
+- NetRadiant-custom (TBD, maintained by Garux).
+
+This repository contains build tools to build Debian/Ubuntu packages for
+`GtkRadiant <https://github.com/TTimo/GtkRadiant>`_ along with the
+*q3map2* compiler and *bspc* bot file builder.
+
+In the `releases section <../../releases>`_, you might find some
+precompiled debian packages... if you're lucky. But if there aren't any,
+building for your specific Debian derivative should be a breeze.
+
+
+Building NetRadiant for your distro
+-----------------------------------
+
 Using Docker::
 
-    ./Dockerfile.build
+    ./Dockerfile.build [ubuntu/focal]
 
 If the build succeeds, the built Debian packages are placed inside (a
 subdirectory of) ``Dockerfile.out/``.
@@ -66,22 +89,21 @@ Other
 See `<README-quake3.rst>`_ for Quake3 specific setup.
 
 
-BUGS
-----
+BUGS/TODO
+---------
 
-* We should look at netradiant and see if that works flawlessly with our
-  Q3 maps. Apparently it has git-save-support, like we also added
-  `<patches/radiant-load-map-in-saved-order.patch>`_ and
-  `<patches/radiant-no-move-map-symlink.patch>`_. See
-  `<https://netradiant.gitlab.io/>`_ and
-  `<https://netradiant.gitlab.io/post/2018-10-03-denumberized-maps/>`_.
-  Official source: https://gitlab.com/xonotic/netradiant -- see also
-  https://github.com/xonotic/xonotic/wiki/Mapping
+* See if we want to get some patches merged back into the TTimo repo at
+  https://github.com/TTimo/GtkRadiant
 
 * These errors when clicking caulkify::
 
     BobToolz::ERROR->Failed To Load Exclusion List: /usr/lib/x86_64-linux-gnu/gtkradiant/modules/bt/bt-el1.txt
     BobToolz::ERROR->Failed To Load Exclusion List: /usr/lib/x86_64-linux-gnu/gtkradiant/modules/bt/bt-el2.txt
+
+* Add other gamepacks as DEB files. Alter/update/fix README-quake3.rst.
+
+* Maybe fix (re)generating ``radiant.pot`` automatically, and check what
+  kind of warnings ``msgfmt`` is throwing when creating ``po/de.po``.
 
 * The ``"entitypath"`` in ``default_project.proj`` points to a non-existent
   path, but it is not used either. ``entities.def`` is loaded in
@@ -105,15 +127,6 @@ BUGS
 
   I suspect "entitypath" could be removed altogether as it only appears
   to be referenced in ``tools/quake2/extra/qe4/qe3.c``.
-
-
-FUTURE WORK
------------
-
-* See if we want to get some patches merged back into the TTimo repo at
-  https://github.com/TTimo/GtkRadiant
-
-* Add other gamepacks as DEB files. Alter/update/fix README-quake3.rst.
 
 * The German language file in ``po/de.po`` appears to work, assuming you
   have generated the German locale (``locale-gen de_DE.UTF-8``) and
