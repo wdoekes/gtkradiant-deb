@@ -110,9 +110,71 @@ COPY changelog compat control rules gtkradiant* debian/
 COPY patches debian/patches
 COPY source debian/source
 
-# Build (no source pkg, so -b and manual quilt push)
-#RUN quilt push -a
-RUN DEB_BUILD_OPTIONS=parallel=6 dpkg-buildpackage -us -uc
+###############################################################################
+# Build
+###############################################################################
+# Instead of
+#   RUN DEB_BUILD_OPTIONS=parallel=6 dpkg-buildpackage -us -uc
+# we split up the steps for Docker.
+#
+# Answer by "the paul" to question by "Dan Kegel":
+# https://stackoverflow.com/questions/15079207/debhelper-deprecated-option-until
+#
+# Last modified by wdoekes, at 2022-06-01.
+###############################################################################
+# $ sed -e '/run_\(cmd\|hook\)(/!d;s/^[[:blank:]]*/  /' \
+#     $(command -v dpkg-buildpackage)
+#   run_hook('init', 1);
+#   run_cmd('dpkg-source', @source_opts, '--before-build', '.');
+#   run_hook('preclean', $preclean);
+#   run_hook('source', build_has_any(BUILD_SOURCE));
+#   run_cmd('dpkg-source', @source_opts, '-b', '.');
+#     ^- dpkg-buildpackage --build=source
+#   run_hook('build', build_has_any(BUILD_BINARY));
+#   run_cmd(@debian_rules, $buildtarget) if rules_requires_root($binarytarget);
+#     ^- dpkg-buildpackage -nc -T build
+#   run_hook('binary', 1);
+#     ^- dpkg-buildpackage -nc --build=any,all -us -uc
+#   run_hook('buildinfo', 1);
+#   run_cmd('dpkg-genbuildinfo', @buildinfo_opts);
+#   run_hook('changes', 1);
+#   run_hook('postclean', $postclean);
+#   run_cmd('dpkg-source', @source_opts, '--after-build', '.');
+#     ^- also done AFTER source build, so we need to --before-build again
+#   run_hook('check', $check_command);
+#   run_cmd($check_command, @check_opts, $chg);
+#   run_hook('sign', $signsource || $signbuildinfo || $signchanges);
+#   run_hook('done', 1);
+#   run_cmd(@cmd);
+#   run_cmd($cmd);
+###############################################################################
+ENV DEB_BUILD_OPTIONS=parallel=6
+# (1) check build deps, clean tree, make source debs;
+#     we abuse the hook to exit after the build, so we can continue without
+#     having to re-do any --before-build and clean.
+RUN dpkg-buildpackage --build=source --hook-buildinfo="sh -c 'exit 69'" || \
+      rc=$?; test ${rc:-0} -eq 69
+# (2) perform build (make);
+#     /tmp/fail so we can inspect the result of a failed build if we want
+RUN dpkg-buildpackage --no-pre-clean --rules-target=build || touch /tmp/fail
+RUN ! test -f /tmp/fail
+# (3) install stuff into temp dir, tar it up, make the deb file (make install);
+#     /tmp/fail so we can inspect the result of a failed build if we want
+RUN dpkg-buildpackage --no-pre-clean --build=any,all -us -uc || touch /tmp/fail
+RUN ! test -f /tmp/fail
+# (4) reconstruct the changes+buildinfo files, adding the source build;
+#     the binary buildinfo has SOURCE_DATE_EPOCH in the Environment, we'll
+#     want to keep that.
+RUN changes=$(ls ../*.changes) && buildinfo=$(ls ../*.buildinfo) && \
+    dpkg-genchanges -sa >$changes && \
+    restore_env=$(sed -e '/^Environment:/,$!d' $buildinfo) && \
+    dpkg-genbuildinfo && \
+    remove_env=$(sed -e '/^Environment:/,$!d' $buildinfo) && \
+    echo "$remove_env" | sed -e 's/^/-/' >&2 && \
+    echo "$restore_env" | sed -e 's/^/+/' >&2 && \
+    sed -i -e '/^Environment:/,$d' $buildinfo && \
+    echo "$restore_env" >>$buildinfo
+###############################################################################
 
 # TODO: for bonus points, we could run quick tests here;
 # for starters dpkg -i tests?

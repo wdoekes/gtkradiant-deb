@@ -1,3 +1,9 @@
+gtkradiant (1.6.6+20220124+2-0wjd2+ubu20.04) focal; urgency=medium
+
+  * Split up dpkg-buildpackage steps in Dockerfile.
+
+ -- Walter Doekes <wjdoekes+gtkradiant@osso.nl>  Wed, 01 Jun 2022 23:30:58 +0200
+
 gtkradiant (1.6.6+20220124+2-0wjd1+ubu20.04) focal; urgency=medium
 
   * Change version 1.6.6 to 1.6.6+20220124+2 because there aren't nicely
@@ -11,7 +17,7 @@ gtkradiant (1.6.6+20220124+2-0wjd1+ubu20.04) focal; urgency=medium
   * Fix issues when setting LC_ALL instead of LC_MESSAGES.
   * Build process is improved (bspc moved to tools, some scons fixes).
 
- -- Walter Doekes <wjdoekes+gtkradiant@osso.nl>  Apr, 15 Apr 2022 00:30:57 +0200
+ -- Walter Doekes <wjdoekes+gtkradiant@osso.nl>  Fri, 15 Apr 2022 00:30:57 +0200
 
 gtkradiant (1.6.6-0wjd1+ubu20.04) focal; urgency=medium
 
