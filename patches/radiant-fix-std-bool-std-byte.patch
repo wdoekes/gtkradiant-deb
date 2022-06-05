@@ -1,0 +1,33 @@
+Description: g++ 11.x has std::byte (conflict) and gcc knows about bool
+
+diff --git a/include/stl_check.h b/include/stl_check.h
+index b08142bd..6b45063d 100644
+--- a/include/stl_check.h
++++ b/include/stl_check.h
+@@ -32,7 +32,13 @@
+ #ifdef Q_NO_STLPORT
+ 
+ // not using STLPort (gcc 3.x build)
+-using namespace std;
++#include <list>
++#include <map>
++#include <vector>
++using std::list;
++using std::map;
++using std::pair;
++using std::vector;
+ 
+ #else
+ 
+diff --git a/libs/bytebool.h b/libs/bytebool.h
+index 01c98747..03cc5250 100644
+--- a/libs/bytebool.h
++++ b/libs/bytebool.h
+@@ -34,7 +34,6 @@ typedef bool qboolean;
+ #define qfalse false
+ #else
+ typedef enum { qfalse, qtrue } qboolean;
+-typedef qboolean bool; // some code uses bool directly ..
+ #endif
+ 
+ typedef unsigned char byte;

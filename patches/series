@@ -11,3 +11,4 @@ radiant-no-move-map-symlink.patch
 radiant-load-map-in-saved-order.patch
 radiant-vertexcrash.patch
 radiant-fix-lc-all.patch
+radiant-fix-std-bool-std-byte.patch

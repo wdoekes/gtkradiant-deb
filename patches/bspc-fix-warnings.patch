@@ -395,6 +395,32 @@ index 924b34d..0673cdd 100644
  		int			s;
  
  		// find the best portal exit
+diff --git a/map_hl.c b/map_hl.c
+index 88e4fa7..e212919 100644
+--- a/tools/bspc/map_hl.c
++++ b/tools/bspc/map_hl.c
+@@ -633,7 +633,7 @@ bspbrush_t *HL_SplitBrushWithFace(bspbrush_t *brush, hl_dface_t *face)
+ 	hl_dplane_t plane;
+ 	vec_t *v1, *v2;
+ 	vec3_t normal, edgevec;
+-	bspbrush_t *front, *back, *brushlist;
++	bspbrush_t *front = NULL, *back, *brushlist;
+ 
+ 	memcpy(&plane, &hl_dplanes[face->planenum], sizeof(hl_dplane_t));
+ 	//check on which side of the plane the face is
+diff --git a/map_q1.c b/map_q1.c
+index ede944d..11b5a4f 100644
+--- a/tools/bspc/map_q1.c
++++ b/tools/bspc/map_q1.c
+@@ -689,7 +689,7 @@ bspbrush_t *Q1_SplitBrushWithFace(bspbrush_t *brush, q1_dface_t *face)
+ 	q1_dplane_t plane;
+ 	vec_t *v1, *v2;
+ 	vec3_t normal, edgevec;
+-	bspbrush_t *front, *back, *brushlist;
++	bspbrush_t *front = NULL, *back, *brushlist;
+ 
+ 	memcpy(&plane, &q1_dplanes[face->planenum], sizeof(q1_dplane_t));
+ 	//check on which side of the plane the face is
 diff --git a/portals.c b/portals.c
 index cde4f60..4039dd7 100644
 --- a/tools/bspc/portals.c
