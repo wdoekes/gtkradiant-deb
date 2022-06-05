@@ -26,9 +26,11 @@ Depends:
  ${shlibs:Depends},
  ${misc:Depends}
 Suggests: gtkradiant-game-quake3
-# Conflicts with gtkradiant/netradiant, because they both include the
-# toolchain (q3map2, q3data, bspc, ...).
-Conflicts: netradiant
+# Conflicts with gtkradiant/netradiant/nrcradiant, because they all
+# include the toolchain (q3map2, q3data, bspc, ...). Providing something
+# is not sufficient to block simultaneous install. We also need Conflicts.
+Conflicts: netradiant, nrcradiant
+Provides: gtkradiant-fork
 Description: gtkradiant contains (TTimo) GtkRadiant and tools
  GtkRadiant is the open source cross platform level editor for idTech
  games. This package contains the radiant editor, q3map2 compilers and
@@ -38,8 +40,7 @@ Package: gtkradiant-game-quake3
 Architecture: all
 Pre-Depends: ${misc:Pre-Depends}
 Depends:
-# There are no shared libs here:
-# #${shlibs:Depends},
+# There are no shared libs here: so no ${shlibs:Depends},
  ${misc:Depends}
 Suggests: gtkradiant
 Description: gtkradiant Q3Pack contains the Quake III Arena game files

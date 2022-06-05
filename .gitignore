@@ -1,4 +1,4 @@
 *.swp
 
-/Dockerfile.out
+/Dockerfile.out/
 /GtkRadiant/

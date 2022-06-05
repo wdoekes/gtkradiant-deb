@@ -20,6 +20,7 @@ debian/buster)  osdistshort=deb; oscodenum=10;;
 debian/stretch) osdistshort=deb; oscodenum=9;;
 debian/jessie)  osdistshort=deb; oscodenum=8;;
 debian/wheezy)  osdistshort=deb; oscodenum=7;;
+ubuntu/jammy)   osdistshort=ubu; oscodenum=22.04;;
 ubuntu/focal)   osdistshort=ubu; oscodenum=20.04;;
 ubuntu/bionic)  osdistshort=ubu; oscodenum=18.04;;
 ubuntu/xenial)  osdistshort=ubu; oscodenum=16.04;;
