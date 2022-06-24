@@ -6,11 +6,11 @@ like Quake III Arena.
 
 There are at least three competing versions out there:
 
-- 🔘 `GtkRadiant build <https://github.com/wdoekes/gtkradiant-deb>`_ 1.6
+- ☑ `GtkRadiant build <https://github.com/wdoekes/gtkradiant-deb>`_ 1.6
   (a continuation of *GtkRadiant 1.4*, maintained by *TTimo*);
-- 🔘 `NetRadiant build <https://github.com/wdoekes/netradiant-deb>`_ 1.5
+- ☐ `NetRadiant build <https://github.com/wdoekes/netradiant-deb>`_ 1.5
   a continuation of the *GtkRadiant 1.5*, maintained by *Xonotic*);
-- 👉 `NetRadiant-custom build <https://github.com/wdoekes/nrcradiant-deb>`_
+- ☐ `NetRadiant-custom build <https://github.com/wdoekes/nrcradiant-deb>`_
   1.5 (an early fork of *NetRadiant*, maintained by *Garux*).
 
 (There are more versions, including `DarkRadiant
