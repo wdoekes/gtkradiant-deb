@@ -1,4 +1,4 @@
-gtkradiant (1.6.6+20220124+2-WIP+REL) stable; urgency=medium
+gtkradiant (1.6.6+20220124+2-0wjd3+REL) stable; urgency=medium
 
   * Move source files in build procedure to ./source-files/.
   * Move docs to /usr/share/doc to sandboxes browsers can open links to
