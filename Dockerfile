@@ -64,7 +64,7 @@ RUN if ! test -f include/version.h; then \
         grep -xF '#define RADIANT_VERSION "'${upversion%%+*}'"' include/version.h; \
     fi
 # Update version sources to include our version
-RUN echo 'Custom build by wdoekes' > include/aboutmsg.default
+RUN echo 'Custom build by wdoekes/gtkradiant-deb' > include/aboutmsg.default
 RUN echo "$upversion" > include/version.default
 RUN python2 makeversion.py 
 

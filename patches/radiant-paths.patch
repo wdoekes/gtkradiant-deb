@@ -2,6 +2,10 @@ Description: hardcode GtkRadiant paths
  Remove crazy loki stuff (should replace with lookup in proc:
  $(dirname $(readlink /proc/$$/exe)) ). And hardcode paths to
  /usr/share/gtkradiant and /usr/lib/x86_64-linux-gnu.
+ .
+ Also move docs to /usr/share/doc/gtkradiant so sandboxed browsers can
+ open it.
+ .
  This needs some fixing before we could give this back to TTimo.
 
 diff --git a/radiant/gtkmisc.cpp b/radiant/gtkmisc.cpp
@@ -236,16 +240,17 @@ index 33e1e4c5..876f7245 100644
  
  int mainRadiant( int argc, char* argv[] ) {
  	const char *libgl;
-@@ -578,6 +397,8 @@ int mainRadiant( int argc, char* argv[] ) {
+@@ -578,6 +397,9 @@ int mainRadiant( int argc, char* argv[] ) {
  		g_strTempPath = g_strAppPath;
  	}
  
 +	g_strDataPath = g_strAppPath;
++	g_strDocPath = g_strAppPath;
 +	g_strLibPath = g_strAppPath;
  #endif
  
  #if defined( __linux__ ) || defined( __FreeBSD__ ) || defined( __APPLE__ )
-@@ -591,32 +412,32 @@ int mainRadiant( int argc, char* argv[] ) {
+@@ -591,32 +413,29 @@ int mainRadiant( int argc, char* argv[] ) {
  	g_strTempPath = home.GetBuffer();
  	AddSlash( g_strTempPath );
  
@@ -263,13 +268,10 @@ index 33e1e4c5..876f7245 100644
 -	}
 -
 -	g_strAppPath = real;
-+	g_strAppPath = "/usr/bin/";  /* XXX: make more dynamic? */
++	g_strAppPath = "/usr/lib/x86_64-linux-gnu/gtkradiant/";  /* tools are here */
 +	g_strDataPath = "/usr/share/gtkradiant/";
++	g_strDocPath = "/usr/share/doc/gtkradiant/";
 +	g_strLibPath = "/usr/lib/x86_64-linux-gnu/gtkradiant/";
-+	//g_strAppPath += g_get_home_dir();
-+	//g_strAppPath += "/Documents/radiant/";
-+	//mkdir(datapath, 0700); /* ignore return value */
-+	//access(datapath, X_OK) == 0
  
  	// radiant is installed in the parent dir of "tools/"
  	// NOTE: this is not very easy for debugging
@@ -292,7 +294,7 @@ index 33e1e4c5..876f7245 100644
  	g_strDTDPath += "dtds/";
  
  	/*!
-@@ -686,7 +507,7 @@ int mainRadiant( int argc, char* argv[] ) {
+@@ -686,7 +505,7 @@ int mainRadiant( int argc, char* argv[] ) {
  	// locate and open RADIANT_MAJOR and RADIANT_MINOR
  	qboolean bVerIsGood = true;
  	Str ver_file_name;
@@ -301,7 +303,7 @@ index 33e1e4c5..876f7245 100644
  	ver_file_name += "RADIANT_MAJOR";
  	FILE *ver_file = fopen( ver_file_name.GetBuffer(), "r" );
  	if ( ver_file ) {
-@@ -708,7 +529,7 @@ int mainRadiant( int argc, char* argv[] ) {
+@@ -708,7 +527,7 @@ int mainRadiant( int argc, char* argv[] ) {
  		Sys_FPrintf( SYS_ERR, "ERROR: can't find RADIANT_MAJOR in '%s'\n", ver_file_name.GetBuffer() );
  		bVerIsGood = false;
  	}
@@ -310,7 +312,7 @@ index 33e1e4c5..876f7245 100644
  	ver_file_name += "RADIANT_MINOR";
  	ver_file = fopen( ver_file_name.GetBuffer(), "r" );
  	if ( ver_file ) {
-@@ -734,7 +555,7 @@ int mainRadiant( int argc, char* argv[] ) {
+@@ -734,7 +553,7 @@ int mainRadiant( int argc, char* argv[] ) {
  		CString msg;
  		msg = "This editor binary (" RADIANT_VERSION ") doesn't match what the latest setup has configured in this directory\n";
  		msg += "Make sure you run the right/latest editor binary you installed\n";
@@ -323,16 +325,21 @@ diff --git a/radiant/mainframe.cpp b/radiant/mainframe.cpp
 index 7e8e2f48..355d6ed6 100644
 --- a/radiant/mainframe.cpp
 +++ b/radiant/mainframe.cpp
-@@ -46,6 +46,8 @@
+@@ -46,6 +46,9 @@
  
  // globals
  CString g_strAppPath;                   ///< holds the full path of the executable
 +CString g_strDataPath;                  ///< WJD: path to data files
++CString g_strDocPath;                   ///< WJD: path to docs
 +CString g_strLibPath;                   ///< WJD: path to library/executables
  CString g_strDTDPath;                   ///< path to the DTD files
  CString g_pidFile;                      ///< the global .pid file (only for global part of the startup)
  CString g_pidGameFile;                  ///< the game-specific .pid file
-@@ -949,9 +951,9 @@ void MainFrame::create_game_help_menu( GtkWidget *menu, GtkAccelGroup *accel ){
+@@ -946,18 +949,25 @@ void MainFrame::process_xlink( Str &FileName, const char *menu_name, const char
+ 
+ void MainFrame::create_game_help_menu( GtkWidget *menu, GtkAccelGroup *accel ){
+ 	Str FileName;
++	Str base_url;
  	list<CGameDescription *>::iterator iGame;
  
  	// start in the global dir
@@ -340,16 +347,29 @@ index 7e8e2f48..355d6ed6 100644
 +	FileName = g_strDataPath;
  	FileName += "global.xlink";
 -	process_xlink( FileName, "General", g_strAppPath.GetBuffer(), menu, accel );
-+	process_xlink( FileName, "General", g_strDataPath.GetBuffer(), menu, accel );
++	base_url = g_strDocPath;
++	process_xlink( FileName, "General", base_url.GetBuffer(), menu, accel );
  
  	for ( iGame = g_PrefsDlg.mGamesDialog.mGames.begin(); iGame != g_PrefsDlg.mGamesDialog.mGames.end(); iGame++ )
  	{
-@@ -6800,7 +6802,7 @@ void MainFrame::OnHelp(){
+ 		FileName = ( *iGame )->mGameToolsPath;
+ 		FileName += "game.xlink";
+-		process_xlink( FileName, ( *iGame )->mGameName, ( *iGame )->mGameToolsPath.GetBuffer(), menu, accel );
++		base_url = ( *iGame )->mGameToolsPath;
++		if ( strncmp( base_url.GetBuffer(), g_strDataPath.GetBuffer(), g_strDataPath.GetLength() ) == 0 ) {
++			base_url = g_strDocPath;
++			base_url += ( *iGame )->mGameToolsPath.GetBuffer() + g_strDataPath.GetLength();
++		}
++		process_xlink( FileName, ( *iGame )->mGameName, base_url.GetBuffer(), menu, accel );
+ 	}
+ }
+ 
+@@ -6800,7 +6810,7 @@ void MainFrame::OnHelp(){
  // FIXME: we'll go towards a unified help thing soon
  void MainFrame::OnHelpLinks(){
  	Str link;
 -	link = g_strAppPath;
-+	link = g_strDataPath;
++	link = g_strDocPath;
  	link += "links.htm";
  	OpenURL( m_pWidget, link.GetBuffer() );
  }
@@ -465,11 +485,12 @@ diff --git a/radiant/qe3.h b/radiant/qe3.h
 index 0f26bc59..67e55beb 100644
 --- a/radiant/qe3.h
 +++ b/radiant/qe3.h
-@@ -761,6 +761,8 @@ class ClipPoint;
+@@ -761,6 +761,9 @@ class ClipPoint;
  
  extern MainFrame* g_pParentWnd;
  extern CString g_strAppPath;
 +extern CString g_strDataPath;
++extern CString g_strDocPath;
 +extern CString g_strLibPath;
  extern CString g_strDTDPath;
  extern CString g_pidFile;
