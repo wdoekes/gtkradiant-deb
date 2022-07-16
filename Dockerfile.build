@@ -3,7 +3,7 @@ cd "$(dirname "$0")"  # jump to curdir
 set -eu
 
 # Pass these on the command line.
-oscodename=${1:-ubuntu/focal}  # ubuntu/focal
+oscodename=${1:-ubuntu/jammy}  # ubuntu/focal
 upname=gtkradiant
 upversion=${2:-1.6.6}       # GtkRadiant version
 debepoch=
@@ -53,13 +53,15 @@ svn_pull_or_clone() {
 }
 
 # Ensure we have GtkRadiant.
-git_pull_or_clone GtkRadiant https://github.com/TTimo/GtkRadiant
+git_pull_or_clone source-files/GtkRadiant https://github.com/TTimo/GtkRadiant
 # Improve versioning, based on the git version.
-version_suffix=$(git -C GtkRadiant log --date=short --format='%cd' |
-                 tr -d '-' | uniq -c | head -n1 | awk '{print $2 "+" $1}')
+version_suffix=$(\
+    git -C source-files/GtkRadiant log --date=short --format='%cd' |
+    tr -d '-' | uniq -c | head -n1 | awk '{print $2 "+" $1}')
 
 # Add bspc to repo.
-git_pull_or_clone GtkRadiant/tools/bspc https://github.com/TTimo/bspc.git
+git_pull_or_clone source-files/GtkRadiant/tools/bspc \
+    https://github.com/TTimo/bspc.git
 
 # Ensure we have all game pak files.
 for svnpak in \
@@ -77,13 +79,14 @@ for svnpak in \
 	; do
     case $svnpak in
     UnvanquishedPack)
-	svnurl=https://github.com/Unvanquished/unvanquished-mapeditor-support.git/trunk/build/gtkradiant
+	svnurl="https://github.com/Unvanquished/unvanquished-mapeditor-support.git\
+/trunk/build/gtkradiant"
 	;;
     *)
 	svnurl=svn://svn.icculus.org/gtkradiant-gamepacks/$svnpak/trunk
 	;;
     esac
-    svn_pull_or_clone GtkRadiant/install/installs/$svnpak $svnurl
+    svn_pull_or_clone source-files/GtkRadiant/install/installs/$svnpak $svnurl
 done
 
 # Update upversion adding the suffix in there.

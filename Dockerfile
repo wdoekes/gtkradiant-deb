@@ -50,7 +50,7 @@ RUN . /etc/os-release && \
 
 # Set up upstream source, move debian dir and jump into dir.
 # We want the current GtkRadiant build, but we do not need everything in the .git folder.
-COPY ./GtkRadiant/ /build/GtkRadiant
+COPY ./source-files/GtkRadiant/ /build/GtkRadiant
 WORKDIR /build/GtkRadiant
 
 # Check that the version is still $upversion+X.

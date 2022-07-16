@@ -26,7 +26,7 @@ precompiled debian packages... if you're lucky. But if there aren't any,
 building for your specific Debian derivative should be a breeze.
 
 
-Building NetRadiant for your distro
+Building GtkRadiant for your distro
 -----------------------------------
 
 Using Docker::

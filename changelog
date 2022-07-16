@@ -1,3 +1,14 @@
+gtkradiant (1.6.6+20220124+2-WIP+REL) stable; urgency=medium
+
+  * Move source files in build procedure to ./source-files/.
+  * TODO: chromium snaps can read in /usr/share/doc, but not in
+    /usr/share/*radiant/... So, we should really try to move the docs if
+    possible. Otherwise the Jump-to-help doesn't work very well.
+  * TODO: Move the build binaries to /usr/lib/gtkradiant/... so we can stop
+    conflicting.
+
+ -- Walter Doekes <wjdoekes+gtkradiant@osso.nl>  Sat, 16 Jul 2022 20:05:07 +0200
+
 gtkradiant (1.6.6+20220124+2-0wjd2+REL) stable; urgency=medium
 
   * Split up dpkg-buildpackage steps in Dockerfile. Other build
@@ -5,9 +16,6 @@ gtkradiant (1.6.6+20220124+2-0wjd2+REL) stable; urgency=medium
   * The main package now Provides "gtkradiant-fork" so others can ensure
     they're not conflicting with this one.
   * Add build for Ubuntu/Jammy.
-  * TODO: chromium snaps can read in /usr/share/doc, but not in
-    /usr/share/*radiant/... So, we should really try to move the docs if
-    possible. Otherwise the Jump-to-help doesn't work very well.
 
  -- Walter Doekes <wjdoekes+gtkradiant@osso.nl>  Sun, 05 Jun 2022 13:40:29 +0200
 
