@@ -340,7 +340,7 @@ index 7e8e2f48..355d6ed6 100644
  void MainFrame::create_game_help_menu( GtkWidget *menu, GtkAccelGroup *accel ){
  	Str FileName;
 +	Str base_url;
- 	list<CGameDescription *>::iterator iGame;
+ 	std::list<CGameDescription *>::iterator iGame;
  
  	// start in the global dir
 -	FileName = g_strAppPath;

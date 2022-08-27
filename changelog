@@ -1,3 +1,10 @@
+gtkradiant (1.6.6+20220731+2-WIP+REL) stable; urgency=medium
+
+  * Bump upstream version.
+  * UNRELEASED/FIXME
+
+ -- Walter Doekes <wjdoekes+gtkradiant@osso.nl>  Sat, 27 Aug 2022 10:32:27 +0200
+
 gtkradiant (1.6.6+20220124+2-0wjd3+REL) stable; urgency=medium
 
   * Move source files in build procedure to ./source-files/.
